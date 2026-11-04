@@ -55,9 +55,10 @@ export async function POST(req: NextRequest) {
         const contents: any[] = [];
         if (Array.isArray(history) && history.length > 0) {
           for (const item of history.slice(-4)) {
+            if (!item || typeof item.text !== "string") continue;
             contents.push({
               role: item.role === "user" ? "user" : "model",
-              parts: [{ text: item.text }],
+              parts: [{ text: item.text.slice(0, 500) }],
             });
           }
         }
@@ -67,11 +68,15 @@ export async function POST(req: NextRequest) {
           parts: [{ text: cleanMsg }],
         });
 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${apiKey}`;
+        const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent";
 
         const geminiRes = await fetch(url, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "x-goog-api-key": apiKey,
+          },
+          signal: AbortSignal.timeout(10000),
           body: JSON.stringify({
             contents,
             systemInstruction: {

@@ -17,7 +17,6 @@ import {
   Save,
   LogOut,
   RefreshCw,
-  ShieldCheck,
   Copy,
   Check,
   ExternalLink,
@@ -80,7 +79,7 @@ const GOOGLE_APPS_SCRIPT_TEMPLATE = `/**
  * 3. Set Execute as: Me, Access: Anyone -> Copy Web app URL
  * 4. Paste URL into .env.local as GOOGLE_SHEET_WEBHOOK_URL
  */
-var SCRIPT_SECRET = "saketh_portfolio_sync_2026";
+var SCRIPT_SECRET = PropertiesService.getScriptProperties().getProperty("SCRIPT_SECRET");
 
 function escapeFormula(val) {
   if (typeof val === "string") {
@@ -176,7 +175,6 @@ export default function CrmStudio() {
   const [passwordInput, setPasswordInput] = useState("");
   const [authError, setAuthError] = useState("");
   const [isAuthenticating, setIsAuthenticating] = useState(false);
-  const [totpInfo, setTotpInfo] = useState<{ secret: string; uri: string; account: string } | null>(null);
 
   // Leads & Deal Management state
   const [leads, setLeads] = useState<LeadItem[]>([]);
@@ -201,12 +199,6 @@ export default function CrmStudio() {
   const [syncFeedback, setSyncFeedback] = useState<string | null>(null);
   const [copiedScript, setCopiedScript] = useState(false);
 
-  // 2FA modal state
-  const [showTotpModal, setShowTotpModal] = useState(false);
-  const [copiedSecret, setCopiedSecret] = useState(false);
-  const [testPinInput, setTestPinInput] = useState("");
-  const [testPinResult, setTestPinResult] = useState<string | null>(null);
-
   // 1. Check Authentication on Mount
   useEffect(() => {
     async function checkAuth() {
@@ -214,9 +206,6 @@ export default function CrmStudio() {
         const res = await fetch("/api/auth");
         const data = await res.json();
         setIsAuthenticated(Boolean(data.authenticated));
-        if (data.authenticated && data.totp) {
-          setTotpInfo(data.totp);
-        }
       } catch {
         setIsAuthenticated(false);
       }
@@ -255,6 +244,7 @@ export default function CrmStudio() {
           const stageMap: Record<string, Stage> = {
             new: "New",
             contacted: "Contacted",
+            proposal: "Proposal",
             booked: "Contacted",
             completed: "Won",
           };
@@ -334,9 +324,6 @@ export default function CrmStudio() {
         setIsAuthenticated(true);
         setPinInput("");
         setPasswordInput("");
-        const authCheck = await fetch("/api/auth");
-        const authData = await authCheck.json();
-        if (authData.totp) setTotpInfo(authData.totp);
       } else {
         setAuthError(data.error || "Access Denied");
       }
@@ -349,6 +336,7 @@ export default function CrmStudio() {
 
   // Auto-submit PIN when 6 digits are reached
   const handlePinChange = (val: string) => {
+    if (isAuthenticating) return;
     const clean = val.replace(/\D/g, "").slice(0, 6);
     setPinInput(clean);
     if (clean.length === 6) {
@@ -397,7 +385,7 @@ export default function CrmStudio() {
       const statusMap: Record<Stage, string> = {
         New: "new",
         Contacted: "contacted",
-        Proposal: "contacted",
+        Proposal: "proposal",
         Won: "completed",
       };
       await fetch("/api/leads", {
@@ -492,29 +480,6 @@ export default function CrmStudio() {
       setSyncFeedback("⚠️ Network error while connecting to Google Sheets.");
     } finally {
       setIsSyncingSheets(false);
-    }
-  };
-
-  // Test live PIN in setup modal
-  const handleTestPin = async () => {
-    if (testPinInput.length !== 6) {
-      setTestPinResult("Please enter a 6-digit code.");
-      return;
-    }
-    try {
-      const res = await fetch("/api/auth", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pin: testPinInput }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setTestPinResult("✓ PIN Verified! Google Authenticator is working perfectly.");
-      } else {
-        setTestPinResult("✗ Code invalid or expired. Check your phone's clock.");
-      }
-    } catch {
-      setTestPinResult("Verification request failed.");
     }
   };
 
@@ -749,16 +714,6 @@ export default function CrmStudio() {
                 sheetsConfigured ? "bg-[#7CF4D4] shadow-[0_0_8px_#7CF4D4]" : "bg-[#71717A]"
               }`}
             />
-          </button>
-
-          {/* 2FA / Authenticator QR Button */}
-          <button
-            type="button"
-            onClick={() => setShowTotpModal(true)}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-[#14141E] hover:bg-[#1C1C28] border border-[#26262E] text-xs font-mono text-[#A1A1AA] hover:text-[#F4F4F0] transition-colors cursor-pointer"
-          >
-            <ShieldCheck size={13} className="text-[var(--accent)]" />
-            <span className="hidden md:inline">2FA Setup</span>
           </button>
 
           {/* Refresh Leads */}
@@ -1301,110 +1256,6 @@ export default function CrmStudio() {
         </div>
       )}
 
-      {/* ======================================================== */}
-      {/* MODAL 2: GOOGLE AUTHENTICATOR (TOTP PIN) SETUP */}
-      {/* ======================================================== */}
-      {showTotpModal && (
-        <div className="fixed inset-0 z-50 bg-[#000000]/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-[#101017] border border-[#262638] rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl text-left">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2 text-[var(--accent)] font-mono text-xs uppercase tracking-wider font-bold">
-                <ShieldCheck size={16} />
-                <span>Google Authenticator (2FA)</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowTotpModal(false)}
-                className="text-[#71717A] hover:text-[#F4F4F0] text-sm font-mono cursor-pointer"
-              >
-                ✕ Close
-              </button>
-            </div>
-
-            <h3 className="text-xl font-bold text-[#F4F4F0] mb-2">
-              Scan with Authenticator
-            </h3>
-            <p className="text-xs text-[#A1A1AA] leading-relaxed mb-5 font-sans">
-              Scan this QR code with Google Authenticator, Authy, 1Password, or Apple Passwords on your phone to generate 6-digit unlock PINs.
-            </p>
-
-            {/* QR Code Container */}
-            <div className="p-4 rounded-2xl bg-[#FFFFFF] flex flex-col items-center justify-center mb-5 mx-auto w-fit shadow-xl">
-              {totpInfo?.uri ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
-                    totpInfo.uri
-                  )}`}
-                  alt="Google Authenticator QR Code"
-                  width={180}
-                  height={180}
-                  className="rounded-lg"
-                />
-              ) : (
-                <div className="w-[180px] h-[180px] flex items-center justify-center text-xs text-[#333] font-mono">
-                  Loading QR...
-                </div>
-              )}
-            </div>
-
-            {/* Manual Secret Key */}
-            <div className="p-3 rounded-xl bg-[#09090D] border border-[#22222E] mb-5">
-              <div className="text-[10px] font-mono uppercase tracking-wider text-[#71717A] mb-1">
-                Manual Entry Secret Key:
-              </div>
-              <div className="flex items-center justify-between font-mono text-xs text-[var(--accent)] font-bold">
-                <span className="tracking-widest">{totpInfo?.secret || "JBSWY3DPEHPK3PXP"}</span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    navigator.clipboard.writeText(totpInfo?.secret || "JBSWY3DPEHPK3PXP");
-                    setCopiedSecret(true);
-                    setTimeout(() => setCopiedSecret(false), 2000);
-                  }}
-                  className="p-1 text-[#A1A1AA] hover:text-[#F4F4F0] cursor-pointer"
-                  title="Copy secret key"
-                >
-                  {copiedSecret ? <Check size={13} className="text-[#7CF4D4]" /> : <Copy size={13} />}
-                </button>
-              </div>
-            </div>
-
-            {/* Test PIN input */}
-            <div className="space-y-2 pt-3 border-t border-[#1E1E2A]">
-              <label className="block text-[11px] font-mono uppercase text-[#A1A1AA]">
-                Test Live 6-Digit PIN
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  maxLength={6}
-                  value={testPinInput}
-                  onChange={(e) => setTestPinInput(e.target.value.replace(/\D/g, ""))}
-                  placeholder="e.g. 123456"
-                  className="flex-1 px-3.5 py-2 rounded-xl bg-[#07070A] border border-[#242432] focus:border-[var(--accent)] outline-none font-mono text-center text-sm font-bold text-[#F4F4F0]"
-                />
-                <button
-                  type="button"
-                  onClick={handleTestPin}
-                  className="px-4 py-2 rounded-xl bg-[#1E1E2A] hover:bg-[#2A2A3A] text-xs font-mono text-[#F4F4F0] font-bold transition-colors cursor-pointer"
-                >
-                  Verify
-                </button>
-              </div>
-              {testPinResult && (
-                <div
-                  className={`text-xs font-mono mt-1 ${
-                    testPinResult.startsWith("✓") ? "text-[#7CF4D4]" : "text-[#FF5F56]"
-                  }`}
-                >
-                  {testPinResult}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 > **Client/Brand**: `saketh_`  
 > **Source Design**: [`Freelance Portfolio Design.html`](file:///e:/PORTFOLIO/Freelance%20Portfolio%20Design.html)  
-> **Tech Stack**: Next.js 15 (App Router) + TypeScript + Tailwind CSS + Framer Motion + SQLite/Supabase  
+> **Tech Stack**: Next.js 16 (App Router) + TypeScript + Tailwind CSS + Framer Motion + SQLite/Supabase  
 > **Target Deployment**: Vercel (Edge CDN)
 
 ---
@@ -68,7 +68,7 @@ flowchart TD
     Start(["Start Project"]) --> P1
 
     subgraph P1["Phase 1: Foundation & Design Tokens"]
-        P1_1["Initialize Next.js 15 + TypeScript + Tailwind CSS"]
+        P1_1["Initialize Next.js 16 + TypeScript + Tailwind CSS"]
         P1_2["Configure JetBrains Mono & Typography Tokens"]
         P1_3["Set #faf9f5 warm color palette & minimalist borders"]
         P1_4["Build Header Nav & 'Available for work' Badge"]
@@ -195,34 +195,34 @@ flowchart TD
 - [x] **Mobile Action Bar Upgrade**: Added safe-area insets (`env(safe-area-inset-bottom)`) and dedicated `⌘K` spotlight search trigger directly on the mobile bar.
 
 ### [x] Phase 10: Private Studio Security, Payment Ledger Backend & Deliverables Standard
-- [x] **Zero Public Trace of Admin**: Completely removed all `/dashboard` references from [`Footer.tsx`](file:///e:/PORTFOLIO/Portfolio/src/components/Footer.tsx) and [`CommandPalette.tsx`](file:///e:/PORTFOLIO/Portfolio/src/components/CommandPalette.tsx). Public visitors have zero exposure or access links to the studio.
-- [x] **Cryptographic Auth Barrier & Lockscreen**: Created [`src/lib/auth.ts`](file:///e:/PORTFOLIO/Portfolio/src/lib/auth.ts) and [`src/app/api/auth/route.ts`](file:///e:/PORTFOLIO/Portfolio/src/app/api/auth/route.ts). Visiting `/dashboard` without an active `HttpOnly` session renders an authenticated Cyber Lockscreen requiring `ADMIN_SECRET` (configured in `.env.local`).
-- [x] **API Route Authorization**: Protected `GET`, `PATCH`, and `DELETE` on [`/api/leads`](file:///e:/PORTFOLIO/Portfolio/src/app/api/leads/route.ts) with `401 Unauthorized` checks. Public visitors can only submit `POST` inquiries.
-- [x] **Delete Spam/Fake Leads**: Implemented `DELETE /api/leads?id=...` with confirmation prompt in [`/dashboard`](file:///e:/PORTFOLIO/Portfolio/src/app/dashboard/page.tsx) to purge test leads instantly from `data/leads.json`.
+- [x] **Zero Public Trace of Admin**: Completely removed all `/dashboard` references from [`Footer.tsx`](src/components/Footer.tsx) and [`CommandPalette.tsx`](src/components/CommandPalette.tsx). Public visitors have zero exposure or access links to the studio.
+- [x] **Cryptographic Auth Barrier & Lockscreen**: Created [`src/lib/auth.ts`](src/lib/auth.ts) and [`src/app/api/auth/route.ts`](src/app/api/auth/route.ts). Visiting `/dashboard` without an active `HttpOnly` session renders an authenticated Cyber Lockscreen requiring `ADMIN_SECRET` (configured in `.env.local`).
+- [x] **API Route Authorization**: Protected `GET`, `PATCH`, and `DELETE` on [`/api/leads`](src/app/api/leads/route.ts) with `401 Unauthorized` checks. Public visitors can only submit `POST` inquiries.
+- [x] **Delete Spam/Fake Leads**: Implemented `DELETE /api/leads?id=...` with confirmation prompt in [`/dashboard`](src/app/dashboard/page.tsx) to purge test leads instantly from `data/leads.json`.
 - [x] **Real Freelance Deal & Payment Tracking**:
   - Top Executive Summary Bar: **Total Pipeline**, **Cash Collected**, **Pending Balance**, and **Active Deals**.
   - In-drawer financial editor: Set **Total Deal Value**, **Amount Received**, automatic **Pending Balance** computation, and payment status pills (`Unpaid`, `Deposit Paid 50%`, `Fully Paid 100%`).
-- [x] **Act II.5 Deliverables & Documentation Standard**: Created [`DeliverablesStandard.tsx`](file:///e:/PORTFOLIO/Portfolio/src/components/DeliverablesStandard.tsx) with 4 honest, un-hyped deliverable pillars (Figma Design System, Strict TypeScript Codebase, Zero-Guesswork Documentation, and Edge Deployment with video walkthrough), plus an interactive code tab preview (`README.md`, `ARCHITECTURE.md`, `CMS-GUIDE.md`).
+- [x] **Act II.5 Deliverables & Documentation Standard**: Created [`DeliverablesStandard.tsx`](src/components/DeliverablesStandard.tsx) with 4 honest, un-hyped deliverable pillars (Figma Design System, Strict TypeScript Codebase, Zero-Guesswork Documentation, and Edge Deployment with video walkthrough), plus an interactive code tab preview (`README.md`, `ARCHITECTURE.md`, `CMS-GUIDE.md`).
 - [x] **Production Build Verified**: Exit code `0`, `○ Static` prerendering for pages, and `ƒ Dynamic` for secure serverless API routes.
 
 ### [x] Phase 11: Fail-Proof Google Sheets Sync, Transparent Accessible Pricing & Google Authenticator (TOTP PIN)
 - [x] **Fail-Proof Google Sheets Auto-Sync**:
-  - Built [`src/lib/googleSheets.ts`](file:///e:/PORTFOLIO/Portfolio/src/lib/googleSheets.ts): Real-time async webhook synchronization on new bookings, brief submissions, and financial status updates.
+  - Built [`src/lib/googleSheets.ts`](src/lib/googleSheets.ts): Real-time async webhook synchronization on new bookings, brief submissions, and financial status updates.
   - Zero external Google Cloud / GCP setup: Works via standard, free Google Apps Script web app URL (`GOOGLE_SHEET_WEBHOOK_URL`).
-  - Added [`src/app/api/sheets/route.ts`](file:///e:/PORTFOLIO/Portfolio/src/app/api/sheets/route.ts): Endpoint to check connection status and trigger 1-click bulk synchronization of all historical leads directly from `/dashboard`.
+  - Added [`src/app/api/sheets/route.ts`](src/app/api/sheets/route.ts): Endpoint to check connection status and trigger 1-click bulk synchronization of all historical leads directly from `/dashboard`.
   - Added in-dashboard Google Sheets modal with a ready-to-paste 15-line Apps Script template and 1-minute setup guide.
   - Fail-proof architecture: Non-blocking timeout protection (6s) ensures that even if Google is offline or slow, client booking is never interrupted and local `data/leads.json` remains intact.
 - [x] **Budget Brackets Purge & Accessible Pricing Framing**:
   - Completely eliminated rigid, intimidating budget brackets (`$2k–$5k`, `$5k–$12k`, `$12k+`).
-  - Updated [`BookingAndBrief.tsx`](file:///e:/PORTFOLIO/Portfolio/src/components/BookingAndBrief.tsx):
+  - Updated [`BookingAndBrief.tsx`](src/components/BookingAndBrief.tsx):
     - Added reassuring intro call banner: *"Free 30-min intro call to discuss scope, timeline & accessible budget · Zero pushy sales"*.
     - Reframed Brief section: *"2 · Budget & Pricing Model"* with zero agency overhead badge and options (`Discuss openly on a free call (Accessible & Flexible)`, `Lean MVP / Founder-friendly budget`, `Milestone-based sprints`, `Tailored scope`).
-  - Updated [`ScopeEstimator.tsx`](file:///e:/PORTFOLIO/Portfolio/src/components/ScopeEstimator.tsx):
+  - Updated [`ScopeEstimator.tsx`](src/components/ScopeEstimator.tsx):
     - Removed rigid dollar ranges; JSON output now reads: `"pricing_model": "Discuss on free call (Accessible rates)"` and `"agency_markup": "0% (Direct engineer collaboration)"`.
     - CTA button updated to *"Book free call to discuss budget & scope"*.
 - [x] **Google Authenticator (2FA / RFC 6238 TOTP PIN) Integration**:
-  - Built native RFC 6238 TOTP engine in [`src/lib/totp.ts`](file:///e:/PORTFOLIO/Portfolio/src/lib/totp.ts) using native Node.js `crypto` with zero external dependencies and zero bloat.
-  - Updated [`src/lib/auth.ts`](file:///e:/PORTFOLIO/Portfolio/src/lib/auth.ts) and [`src/app/api/auth/route.ts`](file:///e:/PORTFOLIO/Portfolio/src/app/api/auth/route.ts): Supports authenticating via 6-digit Google Authenticator PIN or Master Secret password.
+  - Built native RFC 6238 TOTP engine in [`src/lib/totp.ts`](src/lib/totp.ts) using native Node.js `crypto` with zero external dependencies and zero bloat.
+  - Updated [`src/lib/auth.ts`](src/lib/auth.ts) and [`src/app/api/auth/route.ts`](src/app/api/auth/route.ts): Supports authenticating via 6-digit Google Authenticator PIN or Master Secret password.
   - Redesigned `/dashboard` Lockscreen: Sleek cyber toggle between **6-Digit Authenticator PIN** (with auto-submit upon typing the 6th digit) and **Master Password**.
 - [x] **Production Build Verified**: Exit code `0`, `○ Static` (7 pages) + `ƒ Dynamic` (3 secure APIs: `/api/auth`, `/api/leads`, `/api/sheets`).
 
@@ -238,7 +238,7 @@ flowchart TD
 
 ### [x] Phase 13: Hero Negative Space Reduction & Single-Row Domains Fix
 - [x] **Hero Negative Space Optimization**:
-  - Removed excessive top padding (`pt-24`) and automatic vertical centering (`my-auto`) in [`Hero.tsx`](file:///e:/PORTFOLIO/Portfolio/src/components/Hero.tsx) that caused an awkward ~200px void under the navbar.
+  - Removed excessive top padding (`pt-24`) and automatic vertical centering (`my-auto`) in [`Hero.tsx`](src/components/Hero.tsx) that caused an awkward ~200px void under the navbar.
   - Re-anchored hero content with natural top margin (`mt-1 sm:mt-3 md:mt-4`) and comfortable section padding (`pt-4 sm:pt-7 md:pt-8`), placing the headline directly in the golden-ratio focal area.
   - Re-aligned the spinning seal badge to `top-8 sm:top-10` for visual balance with the headline.
 - [x] **Single-Row Domains Enforcement**:
@@ -249,32 +249,32 @@ flowchart TD
 
 ### [x] Phase 14: Dashboard to CRM Route Migration & Project Review
 - [x] **Route Migration (`/dashboard` → `/crm`)**:
-  - Created [`src/app/crm/page.tsx`](file:///e:/PORTFOLIO/Portfolio/src/app/crm/page.tsx) with clean, un-duplicated code.
+  - Created [`src/app/crm/page.tsx`](src/app/crm/page.tsx) with clean, un-duplicated code.
   - Rebranded the lockscreen to **"Saketh CRM / Private Client CRM"** with dual Authenticator PIN and Master Password options.
   - Rebranded the authenticated header to `saketh_crm` with `AUTHENTICATED CRM` badge.
-  - Configured automatic HTTP 308 permanent redirect from `/dashboard` to `/crm` in [`next.config.ts`](file:///e:/PORTFOLIO/Portfolio/next.config.ts).
+  - Configured automatic HTTP 308 permanent redirect from `/dashboard` to `/crm` in [`next.config.ts`](next.config.ts).
   - Deleted old `src/app/dashboard` folder to prevent route collision.
   - Updated all internal comments and docs across `.env.local`, `.env.example`, and `src/lib/googleSheets.ts`.
 ### [x] Phase 15: Security Hardening & Vulnerability Remediation
 - [x] **HMAC Cryptographic Session Tokens**:
-  - Replaced static cookie value with timestamped, HMAC-SHA256 signed session tokens (`<timestamp>.<signature>`) in [`src/lib/auth.ts`](file:///e:/PORTFOLIO/Portfolio/src/lib/auth.ts).
+  - Replaced static cookie value with timestamped, HMAC-SHA256 signed session tokens (`<timestamp>.<signature>`) in [`src/lib/auth.ts`](src/lib/auth.ts).
   - Enforced constant-time verification using `crypto.timingSafeEqual` and 7-day expiration checks.
   - Eliminated auth bypass vulnerability where setting arbitrary cookie strings allowed CRM access.
 - [x] **Timing-Safe Password Verification & TOTP Replay Protection**:
   - Implemented SHA-256 digest comparison in `verifyPassword` to eliminate timing attack vectors.
   - Added in-memory token consumption cache to prevent replaying 6-digit TOTP codes within the validity window.
 - [x] **PII Leak Prevention in Git**:
-  - Added `/data/` and `data/*.json` to [`.gitignore`](file:///e:/PORTFOLIO/Portfolio/.gitignore) to protect client names, emails, and financial deal values from being exposed on GitHub.
+  - Added `/data/` and `data/*.json` to [`.gitignore`](.gitignore) to protect client names, emails, and financial deal values from being exposed on GitHub.
 - [x] **Brute-Force Rate Limiting & Bot Honeypot**:
-  - Created [`src/lib/rateLimit.ts`](file:///e:/PORTFOLIO/Portfolio/src/lib/rateLimit.ts) sliding window rate limiter.
+  - Created [`src/lib/rateLimit.ts`](src/lib/rateLimit.ts) sliding window rate limiter.
   - Locked down `/api/auth` (max 5 failed attempts per 15 minutes + 250ms artificial delay).
   - Protected `/api/leads` (max 10 submissions per 10 minutes per IP).
-  - Added hidden honeypot fields (`website_hp`) in [`BookingAndBrief.tsx`](file:///e:/PORTFOLIO/Portfolio/src/components/BookingAndBrief.tsx) to silently neutralize automated spam bots without touching storage or quotas.
+  - Added hidden honeypot fields (`website_hp`) in [`BookingAndBrief.tsx`](src/components/BookingAndBrief.tsx) to silently neutralize automated spam bots without touching storage or quotas.
 - [x] **Google Sheets Formula Injection & Shared Secret Authentication**:
-  - Added `sanitizeSpreadsheetCell` in [`src/lib/googleSheets.ts`](file:///e:/PORTFOLIO/Portfolio/src/lib/googleSheets.ts) to neutralize spreadsheet formula execution (`=`, `+`, `-`, `@`).
-  - Added shared secret token authentication (`GOOGLE_SHEETS_SECRET`) in [`.env.local`](file:///e:/PORTFOLIO/Portfolio/.env.local), [`.env.example`](file:///e:/PORTFOLIO/Portfolio/.env.example), and [`google-apps-script.js`](file:///e:/PORTFOLIO/Portfolio/google-apps-script.js) to protect against unauthorized remote sheet wiping.
+  - Added `sanitizeSpreadsheetCell` in [`src/lib/googleSheets.ts`](src/lib/googleSheets.ts) to neutralize spreadsheet formula execution (`=`, `+`, `-`, `@`).
+  - Added shared secret token authentication (`GOOGLE_SHEETS_SECRET`) in [`.env.local`](.env.local), [`.env.example`](.env.example), and [`google-apps-script.js`](google-apps-script.js) to protect against unauthorized remote sheet wiping.
 - [x] **HTTP Security Headers**:
-  - Configured `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, and `Permissions-Policy` in [`next.config.ts`](file:///e:/PORTFOLIO/Portfolio/next.config.ts).
+  - Configured `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, and `Permissions-Policy` in [`next.config.ts`](next.config.ts).
 - [x] **Serverless Read-Only Filesystem Resilience**:
   - Wrapped local file operations in `src/lib/leads.ts` with in-memory caching and bounds sanitization to prevent `EROFS` crashes on read-only serverless platforms like Vercel.
 - [x] **Verification**:

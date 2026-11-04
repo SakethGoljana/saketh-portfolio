@@ -14,7 +14,7 @@ import {
   HelpCircle,
   Laptop,
 } from "lucide-react";
-import { FeedbackCategory } from "@/lib/feedback";
+import type { FeedbackCategory } from "@/lib/feedback";
 
 interface CategoryOption {
   id: FeedbackCategory;

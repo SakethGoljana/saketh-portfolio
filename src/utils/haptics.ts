@@ -4,7 +4,7 @@
  * synthesized Apple Taptic-style Web Audio clicks.
  */
 
-type HapticType = "tap" | "click" | "snap" | "success" | "toggle";
+type HapticType = "tap" | "click" | "snap" | "success" | "error" | "toggle";
 
 let audioCtx: AudioContext | null = null;
 
@@ -37,6 +37,8 @@ export function triggerHaptic(type: HapticType = "tap") {
         navigator.vibrate(15);
       } else if (type === "success") {
         navigator.vibrate([10, 30, 15]);
+      } else if (type === "error") {
+        navigator.vibrate([20, 40, 20]);
       }
     }
   } catch {}

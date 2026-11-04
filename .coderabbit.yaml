@@ -5,7 +5,8 @@ early_access: false
 
 reviews:
   profile: "assertive" # In-depth architectural review
-  request_changes_workflow: false
+  auto_approvals:
+    enabled: false
   high_level_summary: true
   poem: false
   sequence_diagrams: true
@@ -24,7 +25,7 @@ reviews:
     - "!**/package-lock.json"
 
   # Custom engineering guidelines for CodeRabbit
-  instructions:
+  path_instructions:
     - path: "**/*.{ts,tsx}"
       instructions: |
         Stack: Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4.

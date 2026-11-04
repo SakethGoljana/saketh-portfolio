@@ -67,7 +67,7 @@ export default function BookingAndBrief() {
   const [currentMonthDate, setCurrentMonthDate] = useState(() => new Date());
   const [selectedDate, setSelectedDate] = useState(() => new Date());
   const [selectedDay, setSelectedDay] = useState<string>(() => {
-    return new Date().toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+    return new Date().toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "Asia/Kolkata" });
   });
   const [selectedSlot, setSelectedSlot] = useState<string>("11:30 AM");
   const [bookName, setBookName] = useState<string>("");
@@ -200,18 +200,43 @@ export default function BookingAndBrief() {
     return target < today;
   };
 
-  // Calendar export helpers
+  // Calendar export helpers with precise UTC date-time calculations
+  const getSlotUtcTimes = () => {
+    const match = selectedSlot.match(/(\d+):(\d+)\s*(AM|PM)/i);
+    let hours = 11;
+    let minutes = 30;
+    if (match) {
+      hours = parseInt(match[1], 10);
+      minutes = parseInt(match[2], 10);
+      const isPm = match[3].toUpperCase() === "PM";
+      if (isPm && hours < 12) hours += 12;
+      if (!isPm && hours === 12) hours = 0;
+    }
+    const year = selectedDate.getFullYear();
+    const month = selectedDate.getMonth();
+    const day = selectedDate.getDate();
+    const istOffsetMinutes = 330; // IST is UTC+5:30
+    const totalMinutesUtc = hours * 60 + minutes - istOffsetMinutes;
+    const start = new Date(Date.UTC(year, month, day, 0, totalMinutesUtc, 0));
+    const end = new Date(start.getTime() + 30 * 60 * 1000);
+    const formatIso = (d: Date) => d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+    return { startIso: formatIso(start), endIso: formatIso(end) };
+  };
+
   const getGoogleCalendarUrl = () => {
     if (!selectedDay || !selectedSlot) return "#";
+    const { startIso, endIso } = getSlotUtcTimes();
     const title = encodeURIComponent(`Intro Call · Saketh × ${bookName || "Partner"}`);
     const details = encodeURIComponent(
       `30-minute introductory architecture & design discussion.\nDate & Time: ${selectedDay} at ${selectedSlot} IST (UTC+5:30)\nContact: ${bookContact}\nMeeting link will be shared via email/WhatsApp prior to the call.`
     );
     const location = encodeURIComponent("Google Meet");
-    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&location=${location}`;
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&location=${location}&dates=${startIso}/${endIso}`;
   };
 
   const downloadIcs = () => {
+    const { startIso, endIso } = getSlotUtcTimes();
+    const nowIso = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
     const title = `Intro Call · Saketh × ${bookName || "Partner"}`;
     const description = `30-minute introductory architecture & design discussion.\nDate: ${selectedDay} at ${selectedSlot} IST.\nContact: ${bookContact}`;
     const icsContent = [
@@ -221,21 +246,27 @@ export default function BookingAndBrief() {
       "CALSCALE:GREGORIAN",
       "METHOD:PUBLISH",
       "BEGIN:VEVENT",
+      `UID:call-${Date.now()}@saketh.dev`,
+      `DTSTAMP:${nowIso}`,
+      `DTSTART:${startIso}`,
+      `DTEND:${endIso}`,
       `SUMMARY:${title}`,
       `DESCRIPTION:${description}`,
       "LOCATION:Google Meet",
-      `STATUS:CONFIRMED`,
+      "STATUS:CONFIRMED",
       "END:VEVENT",
       "END:VCALENDAR",
     ].join("\r\n");
 
     const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
     const link = document.createElement("a");
-    link.href = window.URL.createObjectURL(blob);
+    const blobUrl = window.URL.createObjectURL(blob);
+    link.href = blobUrl;
     link.setAttribute("download", "saketh-intro-call.ics");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    window.URL.revokeObjectURL(blobUrl);
   };
 
   const handleConfirmCall = async (e: React.FormEvent) => {
@@ -277,9 +308,11 @@ export default function BookingAndBrief() {
 
       setBookedSuccess(true);
       triggerHaptic("success");
-    } catch {
-      setBookedSuccess(true);
-      triggerHaptic("success");
+    } catch (err) {
+      setBookError(
+        err instanceof Error ? err.message : "Unable to confirm slot. Please reach out via WhatsApp."
+      );
+      triggerHaptic("error");
     } finally {
       setIsBooking(false);
     }
@@ -322,9 +355,11 @@ export default function BookingAndBrief() {
 
       setBriefSuccess(true);
       triggerHaptic("success");
-    } catch {
-      setBriefSuccess(true);
-      triggerHaptic("success");
+    } catch (err) {
+      setBriefError(
+        err instanceof Error ? err.message : "Failed to send brief. Please message directly on WhatsApp."
+      );
+      triggerHaptic("error");
     } finally {
       setIsSendingBrief(false);
     }

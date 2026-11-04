@@ -18,10 +18,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ authenticated: false });
   }
 
-  // Provide TOTP setup info strictly for authenticated admin
   return NextResponse.json({
     authenticated: true,
-    totp: getTotpSetupInfo(),
   });
 }
 

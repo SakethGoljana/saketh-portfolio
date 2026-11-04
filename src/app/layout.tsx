@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import FeedbackWidget from "@/components/FeedbackWidget";
+import CommandPalette from "@/components/CommandPalette";
 
 // Plus Jakarta Sans - Modern, clean, geometric sans designed for premium digital products
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -74,6 +75,7 @@ export default function RootLayout({
       <body className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-sans antialiased selection:bg-[var(--foreground)] selection:text-[var(--background)] flex flex-col transition-colors duration-200">
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
         {children}
+        <CommandPalette />
         <FeedbackWidget />
       </body>
     </html>

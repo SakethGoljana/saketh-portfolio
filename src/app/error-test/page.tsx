@@ -2,9 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { AlertTriangle, ArrowLeft, Bug } from "lucide-react";
 
 export default function ErrorTestPage() {
+  if (process.env.NODE_ENV === "production") {
+    notFound();
+  }
+
   const [shouldCrash, setShouldCrash] = useState(false);
 
   if (shouldCrash) {

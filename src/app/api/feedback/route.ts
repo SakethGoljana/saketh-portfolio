@@ -95,7 +95,15 @@ export async function POST(req: NextRequest) {
       sentiment: sentiment === "issue" || sentiment === "neutral" ? sentiment : "positive",
       message: message.trim(),
       contact: typeof contact === "string" ? contact.trim().slice(0, 150) : undefined,
-      metadata: metadata && typeof metadata === "object" ? metadata : undefined,
+      metadata:
+        metadata && typeof metadata === "object"
+          ? {
+              pathname: typeof metadata.pathname === "string" ? metadata.pathname.slice(0, 200) : undefined,
+              screen: typeof metadata.screen === "string" ? metadata.screen.slice(0, 30) : undefined,
+              theme: typeof metadata.theme === "string" ? metadata.theme.slice(0, 10) : undefined,
+              userAgent: typeof metadata.userAgent === "string" ? metadata.userAgent.slice(0, 300) : undefined,
+            }
+          : undefined,
     });
 
     return NextResponse.json(

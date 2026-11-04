@@ -6,9 +6,7 @@ import Flowchart from "@/components/Flowchart";
 import Capabilities from "@/components/Capabilities";
 import BookingAndBrief from "@/components/BookingAndBrief";
 import Footer from "@/components/Footer";
-import MobileActionBar from "@/components/MobileActionBar";
 import FilmGrain from "@/components/FilmGrain";
-import CommandPalette from "@/components/CommandPalette";
 import ScrollProgress from "@/components/ScrollProgress";
 import ScrollToTop from "@/components/ScrollToTop";
 import InteractiveBackground from "@/components/InteractiveBackground";
@@ -24,9 +22,6 @@ export default function Home() {
 
       {/* Subtle Analog Film Grain Texture (Dark Mode only) */}
       <FilmGrain />
-
-      {/* Global Spotlight Palette (Cmd+K / Ctrl+K) */}
-      <CommandPalette />
 
       {/* Global Navigation with Sun/Moon Dual Theme Toggle */}
       <Navbar />
@@ -56,9 +51,6 @@ export default function Home() {
 
       {/* Floating Back to Top Dial (Desktop & Tablet) */}
       <ScrollToTop />
-
-      {/* Mobile Sticky Action Bar */}
-      <MobileActionBar />
     </div>
   );
 }

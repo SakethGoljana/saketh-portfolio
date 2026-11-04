@@ -16,8 +16,9 @@
  * ====================================================================
  */
 
-// Shared secret key matching GOOGLE_SHEETS_SECRET in .env.local
-var SCRIPT_SECRET = "saketh_portfolio_sync_2026";
+// Reads secret key from Script Properties (Project Settings > Script Properties: SCRIPT_SECRET)
+// Matching GOOGLE_SHEETS_SECRET in .env.local
+var SCRIPT_SECRET = PropertiesService.getScriptProperties().getProperty("SCRIPT_SECRET");
 
 function escapeFormula(val) {
   if (typeof val === "string") {

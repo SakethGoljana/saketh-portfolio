@@ -690,6 +690,15 @@ function ProjectCard({
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
       onClick={onViewScreens}
+      role="button"
+      tabIndex={0}
+      aria-label={`View ${project.title} screens`}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onViewScreens();
+        }
+      }}
       className="group relative flex flex-col rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer
         bg-white dark:bg-[#111319]
         border border-black/[0.08] dark:border-white/[0.07]
@@ -1394,11 +1403,8 @@ export default function WorkShowcase() {
                   <button
                     type="button"
                     onClick={() =>
-                      setActiveSnapshotIndex(
-                        (prev) =>
-                          (prev -
-                            1 +
-                            activeModalProject.snapshots.length) %
+                      scrollToSnapshot(
+                        (activeSnapshotIndex - 1 + activeModalProject.snapshots.length) %
                           activeModalProject.snapshots.length
                       )
                     }
@@ -1410,11 +1416,7 @@ export default function WorkShowcase() {
                   <button
                     type="button"
                     onClick={() =>
-                      setActiveSnapshotIndex(
-                        (prev) =>
-                          (prev + 1) %
-                          activeModalProject.snapshots.length
-                      )
+                      scrollToSnapshot((activeSnapshotIndex + 1) % activeModalProject.snapshots.length)
                     }
                     className="p-2 rounded-xl bg-[var(--muted)] hover:bg-[var(--border)] text-[var(--foreground)] transition-colors cursor-pointer"
                     title="Next Snapshot"

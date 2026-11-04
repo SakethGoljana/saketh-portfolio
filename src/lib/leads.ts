@@ -5,7 +5,7 @@ export interface Lead {
   id: string;
   type: "call_booking" | "project_brief";
   createdAt: string;
-  status: "new" | "contacted" | "booked" | "completed";
+  status: "new" | "contacted" | "proposal" | "booked" | "completed";
   name: string;
   contact: string; // Email or WhatsApp
   day?: string;

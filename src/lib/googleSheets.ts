@@ -11,13 +11,14 @@ export function getGoogleSheetWebhookUrl(): string | null {
   return process.env.GOOGLE_SHEET_WEBHOOK_URL || null;
 }
 
-export function getGoogleSheetSecret(): string {
-  return process.env.GOOGLE_SHEETS_SECRET || process.env.ADMIN_SECRET || "saketh_portfolio_sync_2026";
+export function getGoogleSheetSecret(): string | null {
+  return process.env.GOOGLE_SHEETS_SECRET || null;
 }
 
 export function isGoogleSheetConfigured(): boolean {
   const url = getGoogleSheetWebhookUrl();
-  return Boolean(url && url.startsWith("http"));
+  const secret = getGoogleSheetSecret();
+  return Boolean(url && url.startsWith("http") && secret);
 }
 
 /**
@@ -91,7 +92,8 @@ export async function syncLeadToGoogleSheet(lead: Lead): Promise<SheetSyncResult
       signal: AbortSignal.timeout(6000), // 6s timeout protection
     });
 
-    if (res.ok) {
+    const body = await res.json().catch(() => null);
+    if (res.ok && body?.status === "success") {
       return {
         success: true,
         configured: true,
@@ -102,7 +104,7 @@ export async function syncLeadToGoogleSheet(lead: Lead): Promise<SheetSyncResult
       return {
         success: false,
         configured: true,
-        message: `Google Sheets webhook returned HTTP ${res.status}`,
+        message: body?.message || `Google Sheets webhook returned HTTP ${res.status}`,
       };
     }
   } catch (err: any) {
@@ -143,7 +145,8 @@ export async function syncAllLeadsToGoogleSheet(leads: Lead[]): Promise<SheetSyn
       signal: AbortSignal.timeout(10000), // 10s timeout for bulk sync
     });
 
-    if (res.ok) {
+    const body = await res.json().catch(() => null);
+    if (res.ok && body?.status === "success") {
       return {
         success: true,
         configured: true,
@@ -154,7 +157,7 @@ export async function syncAllLeadsToGoogleSheet(leads: Lead[]): Promise<SheetSyn
       return {
         success: false,
         configured: true,
-        message: `Google Sheets webhook returned HTTP ${res.status}`,
+        message: body?.message || `Google Sheets webhook returned HTTP ${res.status}`,
       };
     }
   } catch (err: any) {
