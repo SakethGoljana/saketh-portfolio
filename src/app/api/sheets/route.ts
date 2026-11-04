@@ -36,18 +36,21 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    const body = await req.json().catch(() => ({}));
+    const allowEmpty = Boolean(body?.allowEmpty);
+
     const leads = getLeads();
-    if (leads.length === 0) {
+    if (leads.length === 0 && !allowEmpty) {
       return NextResponse.json(
         {
           success: false,
-          error: "No leads available locally. Bulk sync aborted to protect the sheet from being erased.",
+          error: "No leads available locally. Bulk sync aborted to protect the sheet. Pass { allowEmpty: true } to explicitly clear the sheet.",
         },
         { status: 409 }
       );
     }
 
-    const result = await syncAllLeadsToGoogleSheet(leads);
+    const result = await syncAllLeadsToGoogleSheet(leads, allowEmpty);
 
     if (result.success) {
       return NextResponse.json({

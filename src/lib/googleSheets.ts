@@ -121,7 +121,7 @@ export async function syncLeadToGoogleSheet(lead: Lead): Promise<SheetSyncResult
 /**
  * Bulk sync all leads to Google Sheets (called from CRM)
  */
-export async function syncAllLeadsToGoogleSheet(leads: Lead[]): Promise<SheetSyncResult> {
+export async function syncAllLeadsToGoogleSheet(leads: Lead[], allowEmpty = false): Promise<SheetSyncResult> {
   const webhookUrl = getGoogleSheetWebhookUrl();
   const secret = getGoogleSheetSecret();
   if (!webhookUrl || !secret) {
@@ -136,6 +136,7 @@ export async function syncAllLeadsToGoogleSheet(leads: Lead[]): Promise<SheetSyn
     const payload = {
       action: "sync_all",
       authSecret: secret,
+      allowEmpty,
       leads: leads.map(formatLeadForSheet),
       timestamp: new Date().toISOString(),
     };

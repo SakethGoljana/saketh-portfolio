@@ -72,9 +72,10 @@ function doPost(e) {
 
     // BULK SYNC ALL LEADS (Atomic Batch Operation)
     if (payload.action === "sync_all") {
-      if (!Array.isArray(payload.leads) || payload.leads.length === 0) {
+      var isEmpty = !Array.isArray(payload.leads) || payload.leads.length === 0;
+      if (isEmpty && !payload.allowEmpty) {
         return ContentService.createTextOutput(
-          JSON.stringify({ error: "Empty or invalid leads array. Sync aborted to protect existing sheet data." })
+          JSON.stringify({ error: "Empty or invalid leads array. Sync aborted to protect existing sheet data. Pass allowEmpty: true to confirm clearing." })
         ).setMimeType(ContentService.MimeType.JSON);
       }
 
