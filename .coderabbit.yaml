@@ -1,0 +1,45 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+language: "en-US"
+early_access: false
+
+reviews:
+  profile: "assertive" # In-depth architectural review
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  sequence_diagrams: true
+  review_status: true
+  collapse_walkthrough: false
+
+  # Exclude build directories, snapshots, and lockfiles
+  path_filters:
+    - "!**/node_modules/**"
+    - "!**/.next/**"
+    - "!**/dist/**"
+    - "!**/build/**"
+    - "!**/coverage/**"
+    - "!**/public/snapshots/**"
+    - "!**/data/**"
+    - "!**/package-lock.json"
+
+  # Custom engineering guidelines for CodeRabbit
+  instructions:
+    - path: "**/*.{ts,tsx}"
+      instructions: |
+        Stack: Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4.
+
+        Architecture & Code Quality:
+        - Check that "use client" is only used when client-side hooks, state, or browser events are needed.
+        - Ensure error boundaries (error.tsx, global-error.tsx) and fallback boundaries (not-found.tsx) properly handle exceptions and render resilient UI.
+        - Verify accessibility: buttons have accessible labels (aria-label/title), forms have associated labels, and keyboard navigation works cleanly.
+        - Ensure TypeScript strictness: avoid `any` types, prefer explicit interfaces and `import type`.
+        - Verify that sensitive keys or admin secrets are never leaked to client bundles.
+
+        Performance & Craft:
+        - Favor CSS variables and standard responsive Tailwind utilities.
+        - Ensure animations use Framer Motion with hardware-accelerated transforms (transform, opacity).
+        - Verify image optimizations: proper aspect ratios, lazy loading, and responsive layouts.
+
+chat:
+  auto_reply: true

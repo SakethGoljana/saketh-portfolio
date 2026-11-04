@@ -1,0 +1,394 @@
+@import "tailwindcss";
+
+/* Configure Tailwind v4 dark variant to strictly obey .dark class and data-theme="dark" */
+@custom-variant dark (&:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+  --font-sans: var(--font-sans-jakarta), -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-mono-jetbrains), "SF Mono", SFMono-Regular, ui-monospace, Menlo, Monaco, Consolas, monospace;
+  --background: #09090B;
+  --foreground: #F8FAFC;
+  --card: #18181B;
+  --card-foreground: #F8FAFC;
+  --card-border: rgba(255, 255, 255, 0.06);
+  --accent: #10B981;
+  --accent-rgb: 16, 185, 129;
+  --accent-foreground: #FFFFFF;
+  --border: rgba(255, 255, 255, 0.06);
+  --border-light: rgba(255, 255, 255, 0.05);
+  --muted: #27272A;
+  --subtext: #A1A1AA;
+  --dot-color: #27272A;
+  --accent-cobalt: #0D9488;
+  --accent-coral: #F97316;
+  --accent-emerald: #10B981;
+  --accent-mint: #34D399;
+  --accent-sky: #38BDF8;
+  --accent-amber: #F59E0B;
+  --accent-purple: #059669;
+  --accent-rose: #F43F5E;
+}
+
+[data-theme="light"], html.light, html[data-theme="light"], :root[data-theme="light"] {
+  --background: #F8F9FA;
+  --foreground: #0F172A;
+  --card: #FFFFFF;
+  --card-foreground: #0F172A;
+  --card-border: rgba(15, 23, 42, 0.08);
+  --accent: #059669;
+  --accent-rgb: 5, 150, 105;
+  --accent-foreground: #FFFFFF;
+  --border: rgba(15, 23, 42, 0.08);
+  --border-light: rgba(15, 23, 42, 0.05);
+  --muted: #F1F4F9;
+  --subtext: #475569;
+  --dot-color: #CBD5E1;
+  --accent-cobalt: #0F766E;
+  --accent-coral: #EA580C;
+  --accent-emerald: #059669;
+  --accent-mint: #10B981;
+  --accent-sky: #0284C7;
+  --accent-amber: #D97706;
+  --accent-purple: #047857;
+  --accent-rose: #E11D48;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-card-border: var(--card-border);
+  --color-accent: var(--accent);
+  --color-accent-cobalt: var(--accent-cobalt);
+  --color-accent-coral: var(--accent-coral);
+  --color-accent-emerald: var(--accent-emerald);
+  --color-accent-sky: var(--accent-sky);
+  --color-accent-amber: var(--accent-amber);
+  --color-accent-purple: var(--accent-purple);
+  --color-accent-rose: var(--accent-rose);
+  --color-border: var(--border);
+  --color-border-light: var(--border-light);
+  --color-muted: var(--muted);
+  --color-subtext: var(--subtext);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: clip;
+  max-width: 100vw;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  overflow-x: clip;
+  max-width: 100vw;
+  touch-action: pan-y;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  letter-spacing: -0.012em;
+  transition: background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Apple Display Typography Engine */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-sans);
+  letter-spacing: -0.028em;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.apple-display {
+  font-family: var(--font-sans);
+  letter-spacing: -0.03em;
+  font-weight: 700;
+  text-wrap: balance;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+.apple-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.apple-narrative {
+  font-family: var(--font-sans);
+  letter-spacing: -0.012em;
+  line-height: 1.65;
+  font-weight: 400;
+}
+
+.apple-tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Prevent iOS Safari auto-zoom on form inputs by ensuring at least 16px font-size */
+@media screen and (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="number"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+/* Background Dot Matrix */
+.bg-dot-grid {
+  background-image: radial-gradient(var(--dot-color) 1.3px, transparent 1.4px);
+  background-size: 32px 32px;
+}
+
+.bg-dot-accent {
+  background-image: radial-gradient(var(--accent) 1.8px, transparent 1.9px);
+  background-size: 32px 32px;
+}
+
+/* Shimmer Gradient Borders */
+.glow-border {
+  border: 1px solid var(--border);
+  background: var(--card) padding-box,
+              linear-gradient(135deg, color-mix(in srgb, var(--accent) 40%, transparent), rgba(255, 255, 255, 0.08), transparent 70%) border-box;
+}
+
+/* Text outline effect matching design */
+.text-outline {
+  color: var(--foreground);
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 1.5px var(--foreground);
+  opacity: 0.9;
+}
+
+@media (min-width: 768px) {
+  .text-outline {
+    -webkit-text-stroke: 2px var(--foreground);
+  }
+}
+
+/* Blinking cursor */
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.cursor-blink {
+  animation: blink 1s infinite;
+}
+
+/* Pulse animation with dynamic accent */
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 60%, transparent); }
+  70% { transform: scale(1); box-shadow: 0 0 0 8px color-mix(in srgb, var(--accent) 0%, transparent); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 0%, transparent); }
+}
+
+.pulse-dot {
+  animation: pulse-ring 2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+/* Mobile Bottom Sheet slide-up */
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0.6;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-sheet-up {
+  animation: sheet-up 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Infinite Marquee Animations */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marquee-rev {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 25s linear infinite;
+}
+
+.animate-marquee-rev {
+  display: flex;
+  width: max-content;
+  animation: marquee-rev 25s linear infinite;
+}
+
+/* Slow Spin */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 16s linear infinite;
+}
+
+/* Kinetic Text Mask Reveal */
+@keyframes mask-reveal {
+  0% {
+    transform: translateY(115%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0%);
+    opacity: 1;
+  }
+}
+
+.animate-mask-reveal {
+  animation: mask-reveal 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Stan.vision Style 3D Spatial Floating Physics */
+@keyframes float-slow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(0.8deg);
+  }
+}
+
+@keyframes float-medium {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(-0.8deg);
+  }
+}
+
+@keyframes float-reverse {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(9px);
+  }
+}
+
+.animate-float-slow {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+.animate-float-medium {
+  animation: float-medium 5.2s ease-in-out infinite 0.8s;
+}
+
+.animate-float-reverse {
+  animation: float-reverse 6.8s ease-in-out infinite 1.6s;
+}
+
+/* Subtle 12fps film grain flutter */
+@keyframes grain-shift {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-1.5%, -2%); }
+  30% { transform: translate(2%, 1.5%); }
+  50% { transform: translate(-2%, 2%); }
+  70% { transform: translate(1.5%, -1.5%); }
+  90% { transform: translate(-1%, 1%); }
+}
+
+.animate-grain {
+  animation: grain-shift 0.5s steps(5) infinite;
+}
+
+/* Smooth custom scrollbars */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* =========================================================================
+   UI/UX Pro-Max Visual Button & Interactive Micro-Physics
+   Provides tactile spring compression, elevation lifts, and ripples
+   ========================================================================= */
+
+button, 
+a[role="button"],
+.interactive-tap {
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* Primary and standard buttons tactile press physics */
+button:not(:disabled):active,
+a:not([aria-disabled="true"]):active {
+  transform: scale(0.965);
+  transition: transform 0.1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+button:not(:disabled),
+a:not([aria-disabled="true"]) {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.2s ease,
+              background-color 0.15s ease,
+              border-color 0.15s ease,
+              color 0.15s ease,
+              opacity 0.15s ease;
+}
+
+/* Subtle tactile lift on desktop hover */
+@media (hover: hover) and (pointer: fine) {
+  button:not(:disabled):hover,
+  a[role="button"]:not([aria-disabled="true"]):hover {
+    transform: translateY(-1.5px);
+  }
+  button:not(:disabled):active,
+  a[role="button"]:not([aria-disabled="true"]):active {
+    transform: translateY(0.5px) scale(0.965);
+  }
+}
+
+/* Respect user's system motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  button:not(:disabled),
+  button:not(:disabled):hover,
+  button:not(:disabled):active,
+  a:not([aria-disabled="true"]),
+  a:not([aria-disabled="true"]):hover,
+  a:not([aria-disabled="true"]):active {
+    transform: none !important;
+    transition: none !important;
+  }
+}
