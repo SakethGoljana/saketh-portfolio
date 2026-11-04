@@ -6,31 +6,36 @@ import { verifyTOTP, getTotpUri } from "./totp";
 export const AUTH_COOKIE_NAME = "saketh_admin_session";
 const SESSION_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
-const DEFAULT_SECRET = "saketh2026";
-// Default Base32 TOTP secret for Google Authenticator (can be overridden in .env.local)
-const DEFAULT_TOTP_SECRET = "JBSWY3DPEHPK3PXP";
+// Ephemeral development-only fallback; never committed credentials.
+const DEV_EPHEMERAL_SECRET = crypto.randomBytes(32).toString("hex");
 
 // Track recently consumed TOTP codes to prevent replay attacks within time window
 const consumedTotpTokens = new Map<string, number>();
 
 export function getAdminSecret(): string {
   const secret = process.env.ADMIN_SECRET;
-  if (!secret && process.env.NODE_ENV === "production") {
-    throw new Error(
-      "CRITICAL SECURITY CONFIGURATION: ADMIN_SECRET environment variable must be set in production before starting the server."
-    );
+  if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "CRITICAL SECURITY CONFIGURATION: ADMIN_SECRET environment variable must be set in production before starting the server."
+      );
+    }
+    return DEV_EPHEMERAL_SECRET;
   }
-  return secret || DEFAULT_SECRET;
+  return secret;
 }
 
 export function getAdminTotpSecret(): string {
   const totpSecret = process.env.ADMIN_TOTP_SECRET;
-  if (!totpSecret && process.env.NODE_ENV === "production") {
-    throw new Error(
-      "CRITICAL SECURITY CONFIGURATION: ADMIN_TOTP_SECRET environment variable must be set in production before starting the server."
-    );
+  if (!totpSecret) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "CRITICAL SECURITY CONFIGURATION: ADMIN_TOTP_SECRET environment variable must be set in production before starting the server."
+      );
+    }
+    return "";
   }
-  return (totpSecret || DEFAULT_TOTP_SECRET).replace(/\s+/g, "").toUpperCase();
+  return totpSecret.replace(/\s+/g, "").toUpperCase();
 }
 
 /**

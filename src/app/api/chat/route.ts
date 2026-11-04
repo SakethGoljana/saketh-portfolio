@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
     // 1. Live Gemini Call using active model with abundant quota (gemini-3.1-flash-lite)
     if (apiKey) {
       try {
-        const contents: any[] = [];
+        const contents: Array<{ role: "user" | "model"; parts: Array<{ text: string }> }> = [];
         if (Array.isArray(history) && history.length > 0) {
           for (const item of history.slice(-4)) {
             if (!item || typeof item.text !== "string") continue;
@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
           // Extract and join all text parts to guarantee the complete response and punchline
           const parts = geminiData?.candidates?.[0]?.content?.parts;
           const candidateText = Array.isArray(parts)
-            ? parts.map((p: any) => p.text || "").join("").trim()
+            ? parts.map((p: { text?: string }) => p.text || "").join("").trim()
             : "";
 
           if (candidateText) {

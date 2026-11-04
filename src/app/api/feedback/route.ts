@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let body: any;
+  let body: Record<string, unknown>;
   try {
     body = await req.json();
   } catch {
@@ -60,7 +60,14 @@ export async function POST(req: NextRequest) {
       contact,
       metadata,
       website_hp,
-    } = body || {};
+    } = (body || {}) as {
+      category?: FeedbackCategory;
+      sentiment?: string;
+      message?: string;
+      contact?: string;
+      metadata?: Record<string, unknown>;
+      website_hp?: string;
+    };
 
     // Honeypot bot protection
     if (website_hp && typeof website_hp === "string" && website_hp.trim().length > 0) {

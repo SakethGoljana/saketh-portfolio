@@ -30,7 +30,7 @@ interface PaletteCommand {
   title: string;
   subtitle?: string;
   category: "Navigation" | "Theme" | "Action";
-  icon: any;
+  icon: React.ComponentType<{ size?: number | string; className?: string }>;
   action: () => void;
   badge?: string;
 }

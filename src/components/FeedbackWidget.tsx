@@ -19,7 +19,7 @@ import type { FeedbackCategory } from "@/lib/feedback";
 interface CategoryOption {
   id: FeedbackCategory;
   label: string;
-  icon: any;
+  icon: React.ComponentType<{ size?: number | string; className?: string }>;
   placeholder: string;
   accent: string;
 }

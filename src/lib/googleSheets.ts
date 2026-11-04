@@ -69,18 +69,19 @@ function formatLeadForSheet(lead: Lead) {
  */
 export async function syncLeadToGoogleSheet(lead: Lead): Promise<SheetSyncResult> {
   const webhookUrl = getGoogleSheetWebhookUrl();
-  if (!webhookUrl) {
+  const secret = getGoogleSheetSecret();
+  if (!webhookUrl || !secret) {
     return {
       success: false,
       configured: false,
-      message: "Google Sheets Webhook URL not configured in .env.local",
+      message: "Google Sheets Webhook URL or GOOGLE_SHEETS_SECRET not configured in .env.local",
     };
   }
 
   try {
     const payload = {
       action: "new_lead",
-      authSecret: getGoogleSheetSecret(),
+      authSecret: secret,
       lead: formatLeadForSheet(lead),
       timestamp: new Date().toISOString(),
     };
@@ -122,18 +123,19 @@ export async function syncLeadToGoogleSheet(lead: Lead): Promise<SheetSyncResult
  */
 export async function syncAllLeadsToGoogleSheet(leads: Lead[]): Promise<SheetSyncResult> {
   const webhookUrl = getGoogleSheetWebhookUrl();
-  if (!webhookUrl) {
+  const secret = getGoogleSheetSecret();
+  if (!webhookUrl || !secret) {
     return {
       success: false,
       configured: false,
-      message: "Google Sheets Webhook URL not configured in .env.local",
+      message: "Google Sheets Webhook URL or GOOGLE_SHEETS_SECRET not configured in .env.local",
     };
   }
 
   try {
     const payload = {
       action: "sync_all",
-      authSecret: getGoogleSheetSecret(),
+      authSecret: secret,
       leads: leads.map(formatLeadForSheet),
       timestamp: new Date().toISOString(),
     };

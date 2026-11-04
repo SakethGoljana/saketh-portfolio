@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { getLeads, saveLead, updateLead, deleteLead, Lead } from "@/lib/leads";
 import { isAuthenticatedRequest } from "@/lib/auth";
 import { syncLeadToGoogleSheet } from "@/lib/googleSheets";
@@ -84,9 +84,11 @@ export async function POST(req: NextRequest) {
       notes: notes ? String(notes).trim().slice(0, 2000) : "",
     });
 
-    // Fail-proof async sync to Google Sheets in background
-    syncLeadToGoogleSheet(lead).catch((err) => {
-      console.warn("Background sheet sync notice:", err);
+    // Fail-proof async sync to Google Sheets in background via after()
+    after(() => {
+      syncLeadToGoogleSheet(lead).catch((err) => {
+        console.warn("Background sheet sync notice:", err);
+      });
     });
 
     return NextResponse.json({ success: true, lead }, { status: 201 });
@@ -133,13 +135,24 @@ export async function PATCH(req: NextRequest) {
     const sanitizedUpdates: Partial<Lead> = {};
     for (const key of allowedKeys) {
       if (key in updates) {
-        if (key === "dealValue" || key === "amountPaid") {
+        if (key === "status") {
+          const validStatuses = ["new", "contacted", "proposal", "booked", "completed"] as const;
+          if (validStatuses.includes(updates[key])) {
+            sanitizedUpdates.status = updates[key];
+          }
+        } else if (key === "paymentStatus") {
+          const validPaymentStatuses = ["unpaid", "deposit_paid", "fully_paid"] as const;
+          if (validPaymentStatuses.includes(updates[key])) {
+            sanitizedUpdates.paymentStatus = updates[key];
+          }
+        } else if (key === "currency") {
+          if (updates[key] === "USD" || updates[key] === "INR") {
+            sanitizedUpdates.currency = updates[key];
+          }
+        } else if (key === "dealValue" || key === "amountPaid") {
           sanitizedUpdates[key] = Math.max(0, Number(updates[key]) || 0);
         } else if (key === "internalNotes" || key === "paymentRef") {
           sanitizedUpdates[key] = String(updates[key] || "").slice(0, 2000);
-        } else {
-          // @ts-ignore
-          sanitizedUpdates[key] = updates[key];
         }
       }
     }
@@ -152,9 +165,11 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    // Sync updated terms & payment state to Google Sheets
-    syncLeadToGoogleSheet(updated).catch((err) => {
-      console.warn("Background sheet sync notice:", err);
+    // Sync updated terms & payment state to Google Sheets via after()
+    after(() => {
+      syncLeadToGoogleSheet(updated).catch((err) => {
+        console.warn("Background sheet sync notice:", err);
+      });
     });
 
     return NextResponse.json({ success: true, lead: updated });

@@ -15,8 +15,11 @@ export async function GET(req: NextRequest) {
 
   const configured = isGoogleSheetConfigured();
   const rawUrl = getGoogleSheetWebhookUrl();
+  const match = rawUrl?.match(/^(https:\/\/[^/]+\/[^/]+\/[^/]+)\/.*$/);
   const maskedUrl = rawUrl
-    ? rawUrl.replace(/^(https:\/\/[^/]+\/[^/]+\/[^/]+)\/.*$/, "$1/••••••••")
+    ? match
+      ? `${match[1]}/••••••••`
+      : "https://script.google.com/••••••••"
     : null;
 
   return NextResponse.json({

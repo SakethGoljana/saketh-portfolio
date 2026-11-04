@@ -239,6 +239,9 @@ export default function BookingAndBrief() {
     const nowIso = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
     const title = `Intro Call · Saketh × ${bookName || "Partner"}`;
     const description = `30-minute introductory architecture & design discussion.\nDate: ${selectedDay} at ${selectedSlot} IST.\nContact: ${bookContact}`;
+    const escapeIcs = (str: string) =>
+      str.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+
     const icsContent = [
       "BEGIN:VCALENDAR",
       "VERSION:2.0",
@@ -250,8 +253,8 @@ export default function BookingAndBrief() {
       `DTSTAMP:${nowIso}`,
       `DTSTART:${startIso}`,
       `DTEND:${endIso}`,
-      `SUMMARY:${title}`,
-      `DESCRIPTION:${description}`,
+      `SUMMARY:${escapeIcs(title)}`,
+      `DESCRIPTION:${escapeIcs(description)}`,
       "LOCATION:Google Meet",
       "STATUS:CONFIRMED",
       "END:VEVENT",
@@ -778,6 +781,7 @@ export default function BookingAndBrief() {
                       <div className="flex items-center gap-2.5">
                         <input
                           type="text"
+                          aria-label="Your Name"
                           placeholder="Your Name"
                           value={bookName}
                           onChange={(e) => setBookName(e.target.value)}
@@ -785,6 +789,7 @@ export default function BookingAndBrief() {
                         />
                         <input
                           type="text"
+                          aria-label="Email or WhatsApp"
                           placeholder="Email or WhatsApp"
                           value={bookContact}
                           onChange={(e) => setBookContact(e.target.value)}

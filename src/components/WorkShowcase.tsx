@@ -822,6 +822,13 @@ export default function WorkShowcase() {
 
   const runwayRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const modalContentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (activeModalProject) {
+      modalContentRef.current?.focus();
+    }
+  }, [activeModalProject]);
 
   const scrollToSnapshot = (idx: number) => {
     setActiveSnapshotIndex(idx);
@@ -948,16 +955,19 @@ export default function WorkShowcase() {
             transition={{ duration: 0.2 }}
             role="dialog"
             aria-modal="true"
+            aria-labelledby="work-modal-title"
             className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6 bg-black/85 backdrop-blur-md"
             onClick={closeModal}
           >
             <motion.div
+              ref={modalContentRef}
+              tabIndex={-1}
               key="work-modal-content"
               initial={{ opacity: 0, y: 40, scale: 0.97 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.98 }}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-t-[32px] sm:rounded-3xl bg-[var(--card)] border border-[var(--border)] p-4 sm:p-8 space-y-4 sm:space-y-5 text-[var(--foreground)] shadow-2xl pb-[calc(1.5rem+env(safe-area-inset-bottom))]"
+              className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-t-[32px] sm:rounded-3xl bg-[var(--card)] border border-[var(--border)] p-4 sm:p-8 space-y-4 sm:space-y-5 text-[var(--foreground)] shadow-2xl pb-[calc(1.5rem+env(safe-area-inset-bottom))] outline-none"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Top Close Button & Header */}
@@ -977,7 +987,7 @@ export default function WorkShowcase() {
                       Project {activeModalProject.number}
                     </span>
                   </div>
-                  <h2 className="text-xl sm:text-3xl font-bold text-[var(--foreground)]">
+                  <h2 id="work-modal-title" className="text-xl sm:text-3xl font-bold text-[var(--foreground)]">
                     {activeModalProject.title}
                   </h2>
                   <p className="text-xs sm:text-sm text-[var(--subtext)] mt-1 max-w-2xl leading-relaxed">
@@ -1381,15 +1391,25 @@ export default function WorkShowcase() {
                           </p>
                         </div>
 
-                        {/* Realistic Visual Mockup Screen */}
-                        <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4 sm:p-6 shadow-md overflow-hidden">
-                          <SnapshotScreen
-                            type={
-                              activeModalProject.snapshots[activeSnapshotIndex]
-                                .type
-                            }
-                            isCompact={false}
-                          />
+                        {/* Realistic Visual Mockup Screen / Screenshot */}
+                        <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-2 sm:p-4 shadow-md overflow-hidden flex items-center justify-center">
+                          {activeModalProject.snapshots[activeSnapshotIndex].imageSrc ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={activeModalProject.snapshots[activeSnapshotIndex].imageSrc}
+                              alt={activeModalProject.snapshots[activeSnapshotIndex].title}
+                              className="max-h-[380px] w-auto object-contain rounded-xl shadow-lg border border-[var(--border)]"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <SnapshotScreen
+                              type={
+                                activeModalProject.snapshots[activeSnapshotIndex]
+                                  .type
+                              }
+                              isCompact={false}
+                            />
+                          )}
                         </div>
                       </motion.div>
                     </AnimatePresence>

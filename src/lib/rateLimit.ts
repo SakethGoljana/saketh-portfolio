@@ -35,8 +35,8 @@ export function getClientIp(req: NextRequest): string {
 }
 
 /**
- * Sliding window rate limiter
- * Returns true if allowed, false if limit exceeded.
+ * Fixed-window in-memory rate limiter.
+ * Returns true if request limit is exceeded (blocked), false if request is allowed.
  */
 export function isRateLimited(key: string, maxAttempts: number, windowMs: number): boolean {
   const now = Date.now();

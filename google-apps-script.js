@@ -35,8 +35,8 @@ function doPost(e) {
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     var payload = JSON.parse(e.postData.contents);
 
-    // SECURITY CHECK: Verify shared secret token to prevent unauthorized tampering
-    if (SCRIPT_SECRET && payload.authSecret !== SCRIPT_SECRET) {
+    // SECURITY CHECK: Strictly require authentication secret match
+    if (!SCRIPT_SECRET || payload.authSecret !== SCRIPT_SECRET) {
       return ContentService.createTextOutput(
         JSON.stringify({ status: "error", error: "Unauthorized: Invalid authentication secret token." })
       ).setMimeType(ContentService.MimeType.JSON);
@@ -70,7 +70,7 @@ function doPost(e) {
       sheet.setFrozenRows(1);
     }
 
-    // BULK SYNC ALL LEADS
+    // BULK SYNC ALL LEADS (Atomic Batch Operation)
     if (payload.action === "sync_all") {
       sheet.clearContents();
       sheet.appendRow(HEADERS);
@@ -80,28 +80,31 @@ function doPost(e) {
       headerRange.setFontColor("#D2FF3F");
       sheet.setFrozenRows(1);
 
-      payload.leads.forEach(function (l) {
-        sheet.appendRow([
-          escapeFormula(l.id),
-          escapeFormula(l.createdAt),
-          escapeFormula(l.type),
-          escapeFormula(l.status),
-          escapeFormula(l.name),
-          escapeFormula(l.contact),
-          escapeFormula(l.service),
-          escapeFormula(l.schedule),
-          escapeFormula(l.budgetOrPreference),
-          l.dealValue,
-          l.amountPaid,
-          l.pendingBalance,
-          escapeFormula(l.paymentStatus),
-          escapeFormula(l.notes),
-          escapeFormula(l.internalNotes)
-        ]);
-      });
+      if (Array.isArray(payload.leads) && payload.leads.length > 0) {
+        var rows = payload.leads.map(function (l) {
+          return [
+            escapeFormula(l.id),
+            escapeFormula(l.createdAt),
+            escapeFormula(l.type),
+            escapeFormula(l.status),
+            escapeFormula(l.name),
+            escapeFormula(l.contact),
+            escapeFormula(l.service),
+            escapeFormula(l.schedule),
+            escapeFormula(l.budgetOrPreference),
+            Number(l.dealValue) || 0,
+            Number(l.amountPaid) || 0,
+            Number(l.pendingBalance) || 0,
+            escapeFormula(l.paymentStatus),
+            escapeFormula(l.notes),
+            escapeFormula(l.internalNotes)
+          ];
+        });
+        sheet.getRange(2, 1, rows.length, HEADERS.length).setValues(rows);
+      }
 
       return ContentService.createTextOutput(
-        JSON.stringify({ status: "success", count: payload.leads.length })
+        JSON.stringify({ status: "success", count: payload.leads ? payload.leads.length : 0 })
       ).setMimeType(ContentService.MimeType.JSON);
     }
 

@@ -8,7 +8,7 @@ A high-performance portfolio and client conversion engine built with **Next.js 1
 - **Interactive Work Showcase**: Multi-screen mobile & web case study viewer with horizontal snapshot runways and keyboard navigation.
 - **Interactive iPhone AI Assistant**: Powered by Google Gemini (`gemini-3.1-flash-lite`) with context-aware responses and direct lead-generation routing.
 - **Booking & Brief Studio**: 30-minute introductory call scheduler with RFC 5545 `.ics` and Google Calendar export, plus milestone brief intake.
-- **Private Studio CRM (`/crm`)**: Authenticated pipeline dashboard with 6-digit Google Authenticator (TOTP) PIN login, financial tracking (USD/INR), and bidirectional Google Sheets synchronization.
+- **Private Studio CRM (`/crm`)**: Authenticated pipeline dashboard with 6-digit Google Authenticator (TOTP) PIN login, financial tracking (USD/INR), and one-way Google Sheets synchronization.
 - **Resilient Error Boundaries**: Custom architectural `404 Not Found` (`not-found.tsx`) and `500 Runtime Exception` boundary (`error.tsx`) with 1-click diagnostic drawer.
 - **Interactive Feedback Widget**: Non-intrusive floating feedback tool on desktop and bottom-sheet drawer on mobile.
 

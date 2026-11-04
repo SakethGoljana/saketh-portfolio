@@ -1,8 +1,8 @@
 # 🚀 Freelance Portfolio — Project Roadmap & Progress Tracker
 
 > **Client/Brand**: `saketh_`  
-> **Source Design**: [`Freelance Portfolio Design.html`](file:///e:/PORTFOLIO/Freelance%20Portfolio%20Design.html)  
-> **Tech Stack**: Next.js 16 (App Router) + TypeScript + Tailwind CSS + Framer Motion + SQLite/Supabase  
+> **Source Design**: `Freelance Portfolio Design.html`  
+> **Tech Stack**: Next.js 16 (App Router) + React 19 + TypeScript + Tailwind CSS v4 + Framer Motion + Google Sheets Sync  
 > **Target Deployment**: Vercel (Edge CDN)
 
 ---
@@ -198,7 +198,7 @@ flowchart TD
 - [x] **Zero Public Trace of Admin**: Completely removed all `/dashboard` references from [`Footer.tsx`](src/components/Footer.tsx) and [`CommandPalette.tsx`](src/components/CommandPalette.tsx). Public visitors have zero exposure or access links to the studio.
 - [x] **Cryptographic Auth Barrier & Lockscreen**: Created [`src/lib/auth.ts`](src/lib/auth.ts) and [`src/app/api/auth/route.ts`](src/app/api/auth/route.ts). Visiting `/dashboard` without an active `HttpOnly` session renders an authenticated Cyber Lockscreen requiring `ADMIN_SECRET` (configured in `.env.local`).
 - [x] **API Route Authorization**: Protected `GET`, `PATCH`, and `DELETE` on [`/api/leads`](src/app/api/leads/route.ts) with `401 Unauthorized` checks. Public visitors can only submit `POST` inquiries.
-- [x] **Delete Spam/Fake Leads**: Implemented `DELETE /api/leads?id=...` with confirmation prompt in [`/dashboard`](src/app/dashboard/page.tsx) to purge test leads instantly from `data/leads.json`.
+- [x] **Delete Spam/Fake Leads**: Implemented `DELETE /api/leads?id=...` with confirmation prompt in [`/crm`](src/app/crm/page.tsx) to purge test leads instantly from `data/leads.json`.
 - [x] **Real Freelance Deal & Payment Tracking**:
   - Top Executive Summary Bar: **Total Pipeline**, **Cash Collected**, **Pending Balance**, and **Active Deals**.
   - In-drawer financial editor: Set **Total Deal Value**, **Amount Received**, automatic **Pending Balance** computation, and payment status pills (`Unpaid`, `Deposit Paid 50%`, `Fully Paid 100%`).

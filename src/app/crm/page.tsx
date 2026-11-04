@@ -24,6 +24,7 @@ import {
   KeyRound,
   FileSpreadsheet,
 } from "lucide-react";
+import type { Lead } from "@/lib/leads";
 
 type Stage = "New" | "Contacted" | "Proposal" | "Won";
 
@@ -96,8 +97,8 @@ function doPost(e) {
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     var payload = JSON.parse(e.postData.contents);
 
-    // Verify secret token to prevent unauthorized tampering
-    if (SCRIPT_SECRET && payload.authSecret !== SCRIPT_SECRET) {
+    // Strictly verify secret token to prevent unauthorized tampering
+    if (!SCRIPT_SECRET || payload.authSecret !== SCRIPT_SECRET) {
       return ContentService.createTextOutput(
         JSON.stringify({ status: "error", error: "Unauthorized access token" })
       ).setMimeType(ContentService.MimeType.JSON);
@@ -239,7 +240,7 @@ export default function CrmStudio() {
       }
       const json = await res.json();
       if (json.success && Array.isArray(json.leads)) {
-        const formatted: LeadItem[] = json.leads.map((l: any) => {
+        const formatted: LeadItem[] = json.leads.map((l: Lead) => {
           const isBooking = l.type === "call_booking";
           const stageMap: Record<string, Stage> = {
             new: "New",
@@ -373,9 +374,10 @@ export default function CrmStudio() {
     }
   };
 
-  // Update Lead Status
+  // Update Lead Status with optimistic rollback
   const updateStage = async (newStage: Stage) => {
     if (!selectedLeadId) return;
+    const previousLeads = [...leads];
 
     setLeads((prev) =>
       prev.map((l) => (l.id === selectedLeadId ? { ...l, stage: newStage } : l))
@@ -388,13 +390,17 @@ export default function CrmStudio() {
         Proposal: "proposal",
         Won: "completed",
       };
-      await fetch("/api/leads", {
+      const res = await fetch("/api/leads", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: selectedLeadId, status: statusMap[newStage] }),
       });
+      if (!res.ok) {
+        setLeads(previousLeads);
+      }
     } catch (err) {
       console.error("Failed to update status:", err);
+      setLeads(previousLeads);
     }
   };
 
@@ -499,8 +505,8 @@ export default function CrmStudio() {
   }, [leads]);
 
   const totalPending = useMemo(() => {
-    return Math.max(0, totalPipelineValue - totalCollected);
-  }, [totalPipelineValue, totalCollected]);
+    return leads.reduce((sum, l) => sum + Math.max(0, (l.dealValue || 0) - (l.amountPaid || 0)), 0);
+  }, [leads]);
 
   // Clean WhatsApp URL
   const whatsappUrl = useMemo(() => {
@@ -584,10 +590,11 @@ export default function CrmStudio() {
           {loginMethod === "pin" ? (
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label className="block text-[11px] uppercase tracking-wider text-[#A1A1AA] mb-2">
+                <label htmlFor="crm-pin-input" className="block text-[11px] uppercase tracking-wider text-[#A1A1AA] mb-2">
                   Enter 6-Digit Google Authenticator Code
                 </label>
                 <input
+                  id="crm-pin-input"
                   type="text"
                   inputMode="numeric"
                   pattern="[0-9]*"
@@ -628,10 +635,11 @@ export default function CrmStudio() {
             /* PASSWORD FORM */
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label className="block text-[11px] uppercase tracking-wider text-[#A1A1AA] mb-2">
+                <label htmlFor="crm-password-input" className="block text-[11px] uppercase tracking-wider text-[#A1A1AA] mb-2">
                   Master Secret Key
                 </label>
                 <input
+                  id="crm-password-input"
                   type="password"
                   autoFocus
                   required
@@ -831,8 +839,17 @@ export default function CrmStudio() {
                 return (
                   <div
                     key={item.id}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Select lead ${item.name}`}
                     onClick={() => setSelectedLeadId(item.id)}
-                    className={`p-4 transition-colors cursor-pointer border-l-2 ${
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setSelectedLeadId(item.id);
+                      }
+                    }}
+                    className={`p-4 transition-colors cursor-pointer border-l-2 outline-none focus-visible:bg-[#161622] ${
                       isSelected
                         ? "bg-[#161622] border-l-[var(--accent)]"
                         : "hover:bg-[#12121A] border-l-transparent"

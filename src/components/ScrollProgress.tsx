@@ -15,44 +15,10 @@ export default function ScrollProgress() {
       }
     };
 
-    // Global anchor smooth-scroll handler ensuring repeated clicks always scroll
-    const handleGlobalAnchorClick = (e: MouseEvent) => {
-      const target = (e.target as HTMLElement)?.closest('a[href^="#"]');
-      if (!target) return;
-      const href = target.getAttribute("href");
-      if (!href || !href.startsWith("#")) return;
-
-      const id = href.replace("#", "");
-      e.preventDefault();
-
-      if (!id || id === "top") {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-        try {
-          window.history.pushState(null, "", "#top");
-        } catch {}
-        return;
-      }
-
-      const targetEl = document.getElementById(id);
-      if (targetEl) {
-        const navOffset = 80;
-        const elementPosition = targetEl.getBoundingClientRect().top + window.scrollY;
-        window.scrollTo({
-          top: Math.max(0, elementPosition - navOffset),
-          behavior: "smooth",
-        });
-        try {
-          window.history.pushState(null, "", `#${id}`);
-        } catch {}
-      }
-    };
-
     window.addEventListener("scroll", handleScroll, { passive: true });
-    document.addEventListener("click", handleGlobalAnchorClick, { capture: true });
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      document.removeEventListener("click", handleGlobalAnchorClick, { capture: true });
     };
   }, []);
 
