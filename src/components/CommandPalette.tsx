@@ -169,7 +169,11 @@ export default function CommandPalette() {
         category: "Action",
         icon: Smartphone,
         action: () => {
-          window.open("https://expo.dev/artifacts/eas/ZMYV1bXPcouSwRPR97MMm_IZiFi6MjiJtYJzUBLmnk8.apk", "_blank");
+          window.open(
+            "https://expo.dev/artifacts/eas/ZMYV1bXPcouSwRPR97MMm_IZiFi6MjiJtYJzUBLmnk8.apk",
+            "_blank",
+            "noopener,noreferrer"
+          );
           setIsOpen(false);
         },
       },
@@ -191,7 +195,7 @@ export default function CommandPalette() {
         category: "Action",
         icon: MessageCircle,
         action: () => {
-          window.open("https://wa.me/919390246687", "_blank");
+          window.open("https://wa.me/919390246687", "_blank", "noopener,noreferrer");
           setIsOpen(false);
         },
       },

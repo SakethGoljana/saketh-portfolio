@@ -72,6 +72,12 @@ function doPost(e) {
 
     // BULK SYNC ALL LEADS (Atomic Batch Operation)
     if (payload.action === "sync_all") {
+      if (!Array.isArray(payload.leads) || payload.leads.length === 0) {
+        return ContentService.createTextOutput(
+          JSON.stringify({ error: "Empty or invalid leads array. Sync aborted to protect existing sheet data." })
+        ).setMimeType(ContentService.MimeType.JSON);
+      }
+
       sheet.clearContents();
       sheet.appendRow(HEADERS);
       var headerRange = sheet.getRange(1, 1, 1, HEADERS.length);

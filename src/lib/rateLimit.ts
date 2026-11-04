@@ -9,7 +9,7 @@ const rateLimitStore = new Map<string, RateLimitRecord>();
 
 // Clean up expired records every 5 minutes to prevent memory leak
 if (typeof setInterval !== "undefined") {
-  setInterval(() => {
+  const cleanupTimer = setInterval(() => {
     const now = Date.now();
     for (const [key, record] of rateLimitStore.entries()) {
       if (now > record.resetAt) {
@@ -17,20 +17,46 @@ if (typeof setInterval !== "undefined") {
       }
     }
   }, 5 * 60 * 1000);
+
+  // Unref the timer in Node.js environments so it does not keep serverless processes awake
+  if (typeof cleanupTimer === "object" && typeof cleanupTimer.unref === "function") {
+    cleanupTimer.unref();
+  }
 }
 
 /**
- * Extract client IP from Next.js request headers
+ * Extract client IP from Next.js request headers.
+ * Prioritizes platform-authenticated headers (Vercel, Cloudflare, standard proxy)
+ * before checking generic forwarded headers.
  */
 export function getClientIp(req: NextRequest): string {
-  const forwarded = req.headers.get("x-forwarded-for");
-  if (forwarded) {
-    return forwarded.split(",")[0].trim();
+  // Vercel edge network header
+  const vercelIp = req.headers.get("x-vercel-forwarded-for");
+  if (vercelIp) {
+    return vercelIp.split(",")[0].trim();
   }
+
+  // Cloudflare verified connecting IP
+  const cfIp = req.headers.get("cf-connecting-ip");
+  if (cfIp) {
+    return cfIp.trim();
+  }
+
+  // Trusted reverse proxy IP
   const realIp = req.headers.get("x-real-ip");
   if (realIp) {
     return realIp.trim();
   }
+
+  // Upstream proxy chain
+  const forwarded = req.headers.get("x-forwarded-for");
+  if (forwarded) {
+    const ips = forwarded.split(",").map((ip) => ip.trim()).filter(Boolean);
+    if (ips.length > 0) {
+      return ips[0];
+    }
+  }
+
   return "127.0.0.1";
 }
 

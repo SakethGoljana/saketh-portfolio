@@ -32,8 +32,8 @@ export function base32Decode(input: string): Buffer {
  */
 export function generateTOTP(secret: string, timeStepWindow = 30, offsetSteps = 0): string {
   const key = base32Decode(secret);
-  if (key.length === 0) {
-    return "000000";
+  if (key.length < 10) {
+    throw new Error("Invalid TOTP secret: decoded key is too short (min 80 bits / 10 bytes)");
   }
   const epoch = Math.floor(Date.now() / 1000);
   const counter = Math.floor(epoch / timeStepWindow) + offsetSteps;
@@ -67,11 +67,15 @@ export function verifyTOTP(token: string, secret: string, window = 1): boolean {
   const cleanToken = token.trim();
   if (cleanToken.length !== 6 || !/^\d{6}$/.test(cleanToken)) return false;
 
-  for (let offset = -window; offset <= window; offset++) {
-    const expected = generateTOTP(secret, 30, offset);
-    if (crypto.timingSafeEqual(Buffer.from(cleanToken), Buffer.from(expected))) {
-      return true;
+  try {
+    for (let offset = -window; offset <= window; offset++) {
+      const expected = generateTOTP(secret, 30, offset);
+      if (crypto.timingSafeEqual(Buffer.from(cleanToken), Buffer.from(expected))) {
+        return true;
+      }
     }
+  } catch {
+    return false;
   }
 
   return false;

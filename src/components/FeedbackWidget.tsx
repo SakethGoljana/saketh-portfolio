@@ -179,8 +179,9 @@ export default function FeedbackWidget() {
           setSentiment("positive");
         }, 300);
       }, 2200);
-    } catch (err: any) {
-      setErrorMsg(err.message || "Failed to submit. Please try again.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to submit. Please try again.";
+      setErrorMsg(msg);
     } finally {
       setIsSubmitting(false);
     }

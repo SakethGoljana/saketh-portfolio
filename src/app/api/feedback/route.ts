@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getFeedbacks, saveFeedback, FeedbackCategory } from "@/lib/feedback";
+import { getFeedbacks, saveFeedback, type FeedbackCategory } from "@/lib/feedback";
 import { isAuthenticatedRequest } from "@/lib/auth";
 import { getClientIp, isRateLimited } from "@/lib/rateLimit";
 

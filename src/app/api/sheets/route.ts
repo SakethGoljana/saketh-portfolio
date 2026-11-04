@@ -37,6 +37,16 @@ export async function POST(req: NextRequest) {
 
   try {
     const leads = getLeads();
+    if (leads.length === 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "No leads available locally. Bulk sync aborted to protect the sheet from being erased.",
+        },
+        { status: 409 }
+      );
+    }
+
     const result = await syncAllLeadsToGoogleSheet(leads);
 
     if (result.success) {
@@ -55,7 +65,7 @@ export async function POST(req: NextRequest) {
         { status: result.configured ? 502 : 400 }
       );
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("POST /api/sheets error:", err);
     return NextResponse.json(
       { success: false, error: "Internal server error during sheet sync" },

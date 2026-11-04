@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse, after } from "next/server";
-import { getLeads, saveLead, updateLead, deleteLead, Lead } from "@/lib/leads";
+import { getLeads, saveLead, updateLead, deleteLead, type Lead } from "@/lib/leads";
 import { isAuthenticatedRequest } from "@/lib/auth";
 import { syncLeadToGoogleSheet } from "@/lib/googleSheets";
 import { getClientIp, isRateLimited } from "@/lib/rateLimit";

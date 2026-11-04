@@ -12,12 +12,18 @@ const DEV_EPHEMERAL_SECRET = crypto.randomBytes(32).toString("hex");
 // Track recently consumed TOTP codes to prevent replay attacks within time window
 const consumedTotpTokens = new Map<string, number>();
 
+const KNOWN_PLACEHOLDERS = new Set([
+  "your_master_admin_password_here",
+  "your_base32_authenticator_secret",
+  "your_sheets_sync_secret_here",
+]);
+
 export function getAdminSecret(): string {
-  const secret = process.env.ADMIN_SECRET;
-  if (!secret) {
+  const secret = process.env.ADMIN_SECRET?.trim();
+  if (!secret || KNOWN_PLACEHOLDERS.has(secret.toLowerCase())) {
     if (process.env.NODE_ENV === "production") {
       throw new Error(
-        "CRITICAL SECURITY CONFIGURATION: ADMIN_SECRET environment variable must be set in production before starting the server."
+        "CRITICAL SECURITY CONFIGURATION: ADMIN_SECRET environment variable must be set to a secure, non-placeholder value in production."
       );
     }
     return DEV_EPHEMERAL_SECRET;
@@ -26,16 +32,16 @@ export function getAdminSecret(): string {
 }
 
 export function getAdminTotpSecret(): string {
-  const totpSecret = process.env.ADMIN_TOTP_SECRET;
-  if (!totpSecret) {
+  const raw = process.env.ADMIN_TOTP_SECRET?.trim();
+  if (!raw || KNOWN_PLACEHOLDERS.has(raw.toLowerCase())) {
     if (process.env.NODE_ENV === "production") {
       throw new Error(
-        "CRITICAL SECURITY CONFIGURATION: ADMIN_TOTP_SECRET environment variable must be set in production before starting the server."
+        "CRITICAL SECURITY CONFIGURATION: ADMIN_TOTP_SECRET environment variable must be set to a secure Base32 secret in production."
       );
     }
     return "";
   }
-  return totpSecret.replace(/\s+/g, "").toUpperCase();
+  return raw.replace(/[\s-]+/g, "").toUpperCase();
 }
 
 /**

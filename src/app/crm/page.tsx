@@ -1012,10 +1012,11 @@ export default function CrmStudio() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-mono text-[#A1A1AA] mb-1.5">
+                    <label htmlFor="crm-deal-value" className="block text-xs font-mono text-[#A1A1AA] mb-1.5">
                       Total Agreed Deal Value ($)
                     </label>
                     <input
+                      id="crm-deal-value"
                       type="number"
                       value={editDealValue}
                       onChange={(e) => setEditDealValue(Number(e.target.value))}
@@ -1025,10 +1026,11 @@ export default function CrmStudio() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-mono text-[#A1A1AA] mb-1.5">
+                    <label htmlFor="crm-amount-paid" className="block text-xs font-mono text-[#A1A1AA] mb-1.5">
                       Amount Paid / Received ($)
                     </label>
                     <input
+                      id="crm-amount-paid"
                       type="number"
                       value={editAmountPaid}
                       onChange={(e) => setEditAmountPaid(Number(e.target.value))}
@@ -1068,7 +1070,7 @@ export default function CrmStudio() {
                         <button
                           key={opt.key}
                           type="button"
-                          onClick={() => setEditPaymentStatus(opt.key as any)}
+                          onClick={() => setEditPaymentStatus(opt.key as LeadItem["paymentStatus"])}
                           className={`text-xs font-mono px-3 py-1.5 rounded-lg border transition-all cursor-pointer ${
                             active
                               ? "bg-[#7CF4D4] text-[#0B0B0F] font-bold border-[#7CF4D4]"
@@ -1084,10 +1086,11 @@ export default function CrmStudio() {
 
                 {/* Confidential Internal Notes */}
                 <div>
-                  <label className="block text-xs font-mono text-[#A1A1AA] mb-1.5">
+                  <label htmlFor="crm-internal-notes" className="block text-xs font-mono text-[#A1A1AA] mb-1.5">
                     Private Admin Notes &amp; Payment Reference
                   </label>
                   <textarea
+                    id="crm-internal-notes"
                     rows={3}
                     value={editInternalNotes}
                     onChange={(e) => setEditInternalNotes(e.target.value)}

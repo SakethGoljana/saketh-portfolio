@@ -60,15 +60,17 @@ const BUDGET_OPTIONS = [
 ];
 const TIMELINES = ["ASAP (< 2 weeks)", "1 to 2 months", "Flexible"];
 
+function formatDayLabel(d: Date): string {
+  return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+}
+
 export default function BookingAndBrief() {
   const [activeTab, setActiveTab] = useState<"call" | "brief">("call");
 
   // Real Month Calendar State
   const [currentMonthDate, setCurrentMonthDate] = useState(() => new Date());
   const [selectedDate, setSelectedDate] = useState(() => new Date());
-  const [selectedDay, setSelectedDay] = useState<string>(() => {
-    return new Date().toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "Asia/Kolkata" });
-  });
+  const [selectedDay, setSelectedDay] = useState<string>(() => formatDayLabel(new Date()));
   const [selectedSlot, setSelectedSlot] = useState<string>("11:30 AM");
   const [bookName, setBookName] = useState<string>("");
   const [bookContact, setBookContact] = useState<string>("");
@@ -662,13 +664,7 @@ export default function BookingAndBrief() {
                                   onClick={() => {
                                     if (!isPast && isCurrentMonth) {
                                       setSelectedDate(d.date);
-                                      setSelectedDay(
-                                        d.date.toLocaleDateString("en-US", {
-                                          weekday: "short",
-                                          month: "short",
-                                          day: "numeric",
-                                        })
-                                      );
+                                      setSelectedDay(formatDayLabel(d.date));
                                       triggerHaptic("tap");
                                     }
                                   }}
@@ -959,12 +955,14 @@ export default function BookingAndBrief() {
                       {/* Full-width Touch-Friendly Inputs */}
                       <div className="space-y-2.5">
                         <div>
-                          <label className="block text-[11px] font-mono text-[var(--subtext)] mb-1 font-semibold">
+                          <label htmlFor="mobile-book-name" className="block text-[11px] font-mono text-[var(--subtext)] mb-1 font-semibold">
                             Your Name <span className="text-rose-500">*</span>
                           </label>
                           <input
+                            id="mobile-book-name"
                             type="text"
                             placeholder="e.g. Alex Vance"
+                            aria-label="Your Name"
                             value={bookName}
                             onChange={(e) => setBookName(e.target.value)}
                             className="w-full h-12 px-3.5 bg-slate-100/90 dark:bg-white/5 border border-slate-300 dark:border-white/15 focus:border-emerald-500 focus:bg-white dark:focus:bg-[#1E1E26] rounded-xl text-base sm:text-sm text-[var(--foreground)] placeholder:text-[var(--subtext)] outline-none transition-all shadow-2xs"
@@ -972,12 +970,14 @@ export default function BookingAndBrief() {
                         </div>
 
                         <div>
-                          <label className="block text-[11px] font-mono text-[var(--subtext)] mb-1 font-semibold">
+                          <label htmlFor="mobile-book-contact" className="block text-[11px] font-mono text-[var(--subtext)] mb-1 font-semibold">
                             Email or WhatsApp <span className="text-rose-500">*</span>
                           </label>
                           <input
+                            id="mobile-book-contact"
                             type="text"
                             placeholder="alex@company.com or phone"
+                            aria-label="Email or WhatsApp"
                             value={bookContact}
                             onChange={(e) => setBookContact(e.target.value)}
                             className="w-full h-12 px-3.5 bg-slate-100/90 dark:bg-white/5 border border-slate-300 dark:border-white/15 focus:border-emerald-500 focus:bg-white dark:focus:bg-[#1E1E26] rounded-xl text-base sm:text-sm text-[var(--foreground)] placeholder:text-[var(--subtext)] outline-none transition-all shadow-2xs"
@@ -1202,6 +1202,7 @@ export default function BookingAndBrief() {
                       <input
                         type="text"
                         placeholder="Your Name"
+                        aria-label="Your Name"
                         value={briefName}
                         onChange={(e) => setBriefName(e.target.value)}
                         className="w-full sm:w-36 px-3.5 py-2.5 bg-slate-100/80 dark:bg-white/5 border border-slate-300 dark:border-white/15 focus:border-emerald-500 focus:bg-white dark:focus:bg-[#1E1E26] rounded-xl text-xs text-[var(--foreground)] placeholder:text-[var(--subtext)] outline-none transition-all shadow-2xs"
@@ -1209,6 +1210,7 @@ export default function BookingAndBrief() {
                       <input
                         type="text"
                         placeholder="Email or WhatsApp"
+                        aria-label="Email or WhatsApp"
                         value={briefContact}
                         onChange={(e) => setBriefContact(e.target.value)}
                         className="w-full sm:w-44 px-3.5 py-2.5 bg-slate-100/80 dark:bg-white/5 border border-slate-300 dark:border-white/15 focus:border-emerald-500 focus:bg-white dark:focus:bg-[#1E1E26] rounded-xl text-xs text-[var(--foreground)] placeholder:text-[var(--subtext)] outline-none transition-all shadow-2xs"
