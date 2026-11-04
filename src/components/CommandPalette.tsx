@@ -265,6 +265,7 @@ export default function CommandPalette() {
           transition={{ duration: 0.15 }}
           role="dialog"
           aria-modal="true"
+          aria-label="Command palette"
           className="fixed inset-0 z-50 flex items-start justify-center pt-14 sm:pt-24 px-4 bg-black/60 backdrop-blur-md"
           onClick={() => setIsOpen(false)}
         >
@@ -282,6 +283,7 @@ export default function CommandPalette() {
               <Search size={18} className="text-[var(--subtext)] shrink-0" />
               <input
                 type="text"
+                aria-label="Search commands"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={handleInputKeyDown}

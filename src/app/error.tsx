@@ -29,11 +29,17 @@ export default function ErrorPage({
     console.error("Runtime exception caught by Next.js error boundary:", error);
   }, [error]);
 
-  const copyDiagnostic = () => {
+  const copyDiagnostic = async () => {
     const diagnostic = `Error: ${error.message}\nDigest: ${error.digest || "None"}\nTimestamp: ${new Date().toISOString()}\nURL: ${typeof window !== "undefined" ? window.location.href : "SSR"}`;
-    navigator.clipboard.writeText(diagnostic);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      if (typeof navigator !== "undefined" && navigator.clipboard) {
+        await navigator.clipboard.writeText(diagnostic);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }
+    } catch (err) {
+      console.warn("Clipboard access denied:", err);
+    }
   };
 
   const triggerFeedbackWithBug = () => {

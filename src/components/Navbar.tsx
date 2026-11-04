@@ -394,6 +394,7 @@ export default function Navbar() {
               <a
                 key={item.id}
                 href={item.href}
+                aria-label={item.label}
                 onClick={(e) => scrollToSection(e, item.href)}
                 className={`relative flex items-center justify-center rounded-full select-none cursor-pointer touch-manipulation h-10 transition-[padding,width] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                   isMatch ? "px-3.5" : "w-10"

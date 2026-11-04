@@ -32,6 +32,9 @@ export function base32Decode(input: string): Buffer {
  */
 export function generateTOTP(secret: string, timeStepWindow = 30, offsetSteps = 0): string {
   const key = base32Decode(secret);
+  if (key.length === 0) {
+    return "000000";
+  }
   const epoch = Math.floor(Date.now() / 1000);
   const counter = Math.floor(epoch / timeStepWindow) + offsetSteps;
 
@@ -84,5 +87,6 @@ export function getTotpUri(
 ): string {
   const encodedIssuer = encodeURIComponent(issuer);
   const encodedAccount = encodeURIComponent(account);
-  return `otpauth://totp/${encodedIssuer}:${encodedAccount}?secret=${secret.replace(/\s+/g, "").toUpperCase()}&issuer=${encodedIssuer}&algorithm=SHA1&digits=6&period=30`;
+  const cleanSecret = secret.replace(/[\s-]+/g, "").toUpperCase();
+  return `otpauth://totp/${encodedIssuer}:${encodedAccount}?secret=${cleanSecret}&issuer=${encodedIssuer}&algorithm=SHA1&digits=6&period=30`;
 }

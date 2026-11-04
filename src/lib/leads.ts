@@ -92,15 +92,22 @@ export function saveLead(leadData: Omit<Lead, "id" | "createdAt" | "status">): L
   };
 
   inMemoryLeads.unshift(newLead);
-
-  try {
-    safeEnsureDataFile();
-    fs.writeFileSync(LEADS_FILE, JSON.stringify(inMemoryLeads, null, 2), "utf8");
-  } catch (err: any) {
-    console.warn("Storage notice: Saved lead to in-memory storage (serverless read-only mode).");
-  }
+  atomicWriteLeadsFile(inMemoryLeads);
 
   return newLead;
+}
+
+function atomicWriteLeadsFile(data: Lead[]): boolean {
+  try {
+    safeEnsureDataFile();
+    const tempFile = `${LEADS_FILE}.${Date.now()}.tmp`;
+    fs.writeFileSync(tempFile, JSON.stringify(data, null, 2), "utf8");
+    fs.renameSync(tempFile, LEADS_FILE);
+    return true;
+  } catch {
+    console.warn("Storage notice: Saved lead to in-memory storage (serverless read-only mode).");
+    return false;
+  }
 }
 
 export function updateLead(id: string, updates: Partial<Lead>): Lead | null {
@@ -119,12 +126,7 @@ export function updateLead(id: string, updates: Partial<Lead>): Lead | null {
     ...sanitizedUpdates,
   };
 
-  try {
-    safeEnsureDataFile();
-    fs.writeFileSync(LEADS_FILE, JSON.stringify(inMemoryLeads, null, 2), "utf8");
-  } catch (err: any) {
-    console.warn("Storage notice: Updated lead in in-memory storage.");
-  }
+  atomicWriteLeadsFile(inMemoryLeads);
 
   return inMemoryLeads[index];
 }
@@ -140,12 +142,7 @@ export function deleteLead(id: string): boolean {
 
   if (inMemoryLeads.length === initialCount) return false;
 
-  try {
-    safeEnsureDataFile();
-    fs.writeFileSync(LEADS_FILE, JSON.stringify(inMemoryLeads, null, 2), "utf8");
-  } catch (err: any) {
-    console.warn("Storage notice: Deleted lead from in-memory storage.");
-  }
+  atomicWriteLeadsFile(inMemoryLeads);
 
   return true;
 }
