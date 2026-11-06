@@ -329,6 +329,18 @@ export default function CrmStudio() {
     }
   }, [isAuthenticated]);
 
+  // Close Sheets modal on Escape
+  useEffect(() => {
+    if (!showSheetsModal) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setShowSheetsModal(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showSheetsModal]);
+
   // 3. Fetch Leads once authenticated
   const loadLeads = async () => {
     setIsLoading(true);
@@ -1344,7 +1356,12 @@ export default function CrmStudio() {
       {/* MODAL 1: GOOGLE SHEETS SETUP & BULK SYNC */}
       {/* ======================================================== */}
       {showSheetsModal && (
-        <div className="fixed inset-0 z-50 bg-[#000000]/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="sheets-modal-title"
+          className="fixed inset-0 z-50 bg-[#000000]/80 backdrop-blur-sm flex items-center justify-center p-4"
+        >
           <div className="w-full max-w-xl max-h-[90vh] overflow-y-auto bg-[#101017] border border-[#262638] rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl text-left">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2 text-[var(--accent)] font-mono text-xs uppercase tracking-wider font-bold">
@@ -1354,13 +1371,14 @@ export default function CrmStudio() {
               <button
                 type="button"
                 onClick={() => setShowSheetsModal(false)}
+                aria-label="Close Google Sheets Modal"
                 className="text-[#71717A] hover:text-[#F4F4F0] text-sm font-mono cursor-pointer"
               >
                 ✕ Close
               </button>
             </div>
 
-            <h3 className="text-xl font-bold text-[#F4F4F0] mb-2">
+            <h3 id="sheets-modal-title" className="text-xl font-bold text-[#F4F4F0] mb-2">
               Sync Inquiries to Google Sheets
             </h3>
             <p className="text-xs text-[#A1A1AA] leading-relaxed mb-6 font-sans">

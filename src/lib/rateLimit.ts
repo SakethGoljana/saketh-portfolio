@@ -24,45 +24,51 @@ if (typeof setInterval !== "undefined") {
   }
 }
 
+// Regular expression for validating standard IPv4 and IPv6 addresses
+const IP_REGEX = /^(?:(?:\d{1,3}\.){3}\d{1,3}|[a-fA-F0-9:]{2,39})$/;
+
 /**
  * Extract client IP from Next.js request headers.
  * Prioritizes platform-authenticated headers (Vercel, Cloudflare, standard proxy)
  * before checking generic forwarded headers.
+ *
+ * NOTE: On serverless infrastructure (e.g., Vercel), each cold container maintains its
+ * own memory space. High-entropy credentials (`ADMIN_SECRET`, `ADMIN_TOTP_SECRET`) serve
+ * as the primary security defense against brute-force attacks, while this rate-limiter
+ * provides defence-in-depth cost and flood mitigation per instance.
  */
 export function getClientIp(req: NextRequest): string {
-  // Vercel edge network header
+  // 1. Vercel edge network header (platform-verified)
   const vercelIp = req.headers.get("x-vercel-forwarded-for");
   if (vercelIp) {
-    return vercelIp.split(",")[0].trim();
+    const candidate = vercelIp.split(",")[0].trim();
+    if (IP_REGEX.test(candidate)) return candidate;
   }
 
-  // Cloudflare verified connecting IP
+  // 2. Cloudflare verified connecting IP
   const cfIp = req.headers.get("cf-connecting-ip");
   if (cfIp) {
-    return cfIp.trim();
+    const candidate = cfIp.trim();
+    if (IP_REGEX.test(candidate)) return candidate;
   }
 
-  // Trusted reverse proxy IP
+  // 3. Trusted reverse proxy IP
   const realIp = req.headers.get("x-real-ip");
   if (realIp) {
-    return realIp.trim();
+    const candidate = realIp.trim();
+    if (IP_REGEX.test(candidate)) return candidate;
   }
 
-  // Upstream proxy chain
+  // 4. Upstream proxy chain
   const forwarded = req.headers.get("x-forwarded-for");
   if (forwarded) {
     const ips = forwarded.split(",").map((ip) => ip.trim()).filter(Boolean);
-    if (ips.length > 0) {
+    if (ips.length > 0 && IP_REGEX.test(ips[0])) {
       return ips[0];
     }
   }
 
-  // If in production without any trusted proxy headers, avoid sharing 127.0.0.1 across all users
-  const userAgent = req.headers.get("user-agent") || "";
-  if (process.env.NODE_ENV === "production" && userAgent) {
-    return `client_${userAgent.slice(0, 32).replace(/\s+/g, "_")}`;
-  }
-
+  // Fallback for local development or direct connections
   return "127.0.0.1";
 }
 
