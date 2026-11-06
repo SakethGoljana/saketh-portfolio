@@ -131,9 +131,10 @@ function doPost(e) {
       "Service Requested",
       "Booked Schedule",
       "Budget / Model",
-      "Deal Value ($)",
-      "Amount Paid ($)",
-      "Pending Balance ($)",
+      "Currency",
+      "Deal Value",
+      "Amount Paid",
+      "Pending Balance",
       "Payment Status",
       "Client Notes",
       "Internal Notes"
@@ -198,6 +199,7 @@ function doPost(e) {
             escapeFormula(l.service),
             escapeFormula(l.schedule),
             escapeFormula(l.budgetOrPreference),
+            escapeFormula(l.currency || "USD"),
             Number(l.dealValue) || 0,
             Number(l.amountPaid) || 0,
             Number(l.pendingBalance) || 0,
@@ -236,6 +238,7 @@ function doPost(e) {
       escapeFormula(l.service),
       escapeFormula(l.schedule),
       escapeFormula(l.budgetOrPreference),
+      escapeFormula(l.currency || "USD"),
       Number(l.dealValue) || 0,
       Number(l.amountPaid) || 0,
       Number(l.pendingBalance) || 0,
@@ -875,6 +878,25 @@ export default function CrmStudio() {
           </button>
         </div>
       </header>
+
+      {/* Cloud Storage Status Banner for Serverless Durability */}
+      {!sheetsConfigured && (
+        <aside aria-label="Cloud storage notice" className="bg-amber-500/10 border-b border-amber-500/20 px-4 sm:px-[5%] py-2 text-xs font-mono text-amber-300 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+            <span>
+              <strong>Cloud Storage Advisory:</strong> In serverless hosting (Vercel), local container storage is ephemeral. Connect Google Sheets to ensure 100% durable multi-instance data persistence.
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowSheetsModal(true)}
+            className="text-amber-200 underline hover:text-white cursor-pointer ml-3 shrink-0 font-bold"
+          >
+            Connect Sheet →
+          </button>
+        </aside>
+      )}
 
       {/* EXECUTIVE FINANCIAL SUMMARY BAR */}
       <section className="border-b border-[#1A1A24] bg-[#0E0E14] px-4 sm:px-[5%] py-4 sm:py-5">

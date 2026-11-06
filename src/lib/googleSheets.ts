@@ -64,6 +64,7 @@ function formatLeadForSheet(lead: Lead) {
     service: sanitizeSpreadsheetCell(lead.service || "Call Booking"),
     schedule: sanitizeSpreadsheetCell(lead.day && lead.slot ? `${lead.day} at ${lead.slot}` : "-"),
     budgetOrPreference: sanitizeSpreadsheetCell(lead.budget || "Discuss on free call"),
+    currency: lead.currency === "INR" ? "INR" : "USD",
     dealValue: dealVal,
     amountPaid: paid,
     pendingBalance: pending,

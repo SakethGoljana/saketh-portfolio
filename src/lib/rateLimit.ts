@@ -57,6 +57,12 @@ export function getClientIp(req: NextRequest): string {
     }
   }
 
+  // If in production without any trusted proxy headers, avoid sharing 127.0.0.1 across all users
+  const userAgent = req.headers.get("user-agent") || "";
+  if (process.env.NODE_ENV === "production" && userAgent) {
+    return `client_${userAgent.slice(0, 32).replace(/\s+/g, "_")}`;
+  }
+
   return "127.0.0.1";
 }
 
