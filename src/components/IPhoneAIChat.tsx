@@ -17,6 +17,8 @@ import {
   X,
   Flame,
   Laugh,
+  Mail,
+  Sparkles,
 } from "lucide-react";
 import { triggerHaptic } from "@/utils/haptics";
 
@@ -27,13 +29,32 @@ interface ChatMessage {
   time?: string;
   hasContactAction?: boolean;
   hasApkAction?: boolean;
+  hasTurnaroundAction?: boolean;
+  hasAbstractAction?: boolean;
 }
 
 const QUICK_SHORTCUTS = [
-  { label: "Turnaround times", icon: Clock, text: "What is your turnaround time for building an app?" },
-  { label: "Fixed pricing", icon: Layers, text: "How does Saketh's pricing work?" },
-  { label: "Dispatch App", icon: Smartphone, text: "Tell me about his mobile app Dispatch." },
-  { label: "Tell me a joke", icon: Laugh, text: "Write me a joke." },
+  {
+    label: "Contact Saketh",
+    icon: PhoneCall,
+    text: "How can I contact Saketh directly or book a call?",
+    highlight: true,
+  },
+  {
+    label: "Projects & Dispatch",
+    icon: Smartphone,
+    text: "Show me Saketh's flagship projects and the Dispatch mobile app.",
+  },
+  {
+    label: "Turnaround & Rates",
+    icon: Clock,
+    text: "What are his project turnaround times and pricing models?",
+  },
+  {
+    label: "Tech Stack & Vibe",
+    icon: Sparkles,
+    text: "What is his engineering philosophy and tech stack?",
+  },
 ];
 
 export default function IPhoneAIChat() {
@@ -41,8 +62,9 @@ export default function IPhoneAIChat() {
     {
       id: "welcome",
       role: "assistant",
-      text: "Ask me anything about Saketh's work. Yes, I know his turnaround times, and no, he won't build your app for equity.",
+      text: "Hey! I'm Snark, Saketh's studio copilot.\n\nAsk me about his projects, timelines, or tap below to get in touch:",
       time: "9:41 AM",
+      hasContactAction: true,
     },
   ]);
   const [input, setInput] = useState("");
@@ -78,12 +100,12 @@ export default function IPhoneAIChat() {
     scrollToBottom(mobileChatScrollRef.current);
   }, [messages, isLoading, mobileModalOpen]);
 
-  // Smooth scroll down to #contact section
-  const scrollToContact = (closeMobile = false) => {
+  // Smooth scroll to any section
+  const scrollToSection = (id: string, closeMobile = false) => {
     if (closeMobile) {
       setMobileModalOpen(false);
     }
-    const el = document.getElementById("contact");
+    const el = document.getElementById(id);
     if (el) {
       el.scrollIntoView({ behavior: "smooth" });
     }
@@ -147,6 +169,8 @@ export default function IPhoneAIChat() {
         reply.toLowerCase().includes("whatsapp") ||
         reply.toLowerCase().includes("call") ||
         reply.toLowerCase().includes("contact") ||
+        reply.toLowerCase().includes("hire") ||
+        text.toLowerCase().includes("contact") ||
         text.toLowerCase().includes("hire") ||
         text.toLowerCase().includes("call");
 
@@ -155,7 +179,25 @@ export default function IPhoneAIChat() {
         reply.toLowerCase().includes("dispatch") ||
         reply.toLowerCase().includes("apk") ||
         text.toLowerCase().includes("dispatch") ||
+        text.toLowerCase().includes("project") ||
         text.toLowerCase().includes("apk");
+
+      const hasTurnaround =
+        data?.hasTurnaroundAction ||
+        reply.toLowerCase().includes("turnaround") ||
+        reply.toLowerCase().includes("mvp in") ||
+        text.toLowerCase().includes("turnaround") ||
+        text.toLowerCase().includes("timeline") ||
+        text.toLowerCase().includes("pricing") ||
+        text.toLowerCase().includes("rate");
+
+      const hasAbstract =
+        data?.hasAbstractAction ||
+        reply.toLowerCase().includes("react native") ||
+        reply.toLowerCase().includes("philosophy") ||
+        text.toLowerCase().includes("stack") ||
+        text.toLowerCase().includes("philosophy") ||
+        text.toLowerCase().includes("abstract");
 
       setMessages((prev) => [
         ...prev,
@@ -166,6 +208,8 @@ export default function IPhoneAIChat() {
           time: "Now",
           hasContactAction: hasContact,
           hasApkAction: hasApk,
+          hasTurnaroundAction: hasTurnaround,
+          hasAbstractAction: hasAbstract,
         },
       ]);
       playHapticSound("receive");
@@ -190,10 +234,136 @@ export default function IPhoneAIChat() {
       {
         id: "welcome",
         role: "assistant",
-        text: "Ask me anything about Saketh's work. Yes, I know his turnaround times, and no, he won't build your app for equity.",
+        text: "Hey! I'm Snark, Saketh's studio copilot.\n\nAsk me about his projects, timelines, or tap below to get in touch:",
         time: "9:41 AM",
+        hasContactAction: true,
       },
     ]);
+  };
+
+  const renderActionCards = (m: ChatMessage, isMobile: boolean) => {
+    if (m.role !== "assistant") return null;
+
+    return (
+      <>
+        {/* 1. CONTACT ACTION CARD (POPS UP FIRST!) */}
+        {m.hasContactAction && (
+          <div className="mt-2.5 pt-2 border-t border-black/8 dark:border-white/10 flex flex-col gap-1.5 animate-in fade-in duration-200">
+            <div className="flex items-center justify-between text-[9px] font-mono font-bold text-emerald-600 dark:text-emerald-400 px-0.5">
+              <span>⚡ DIRECT CONTACT LINE</span>
+              <span>Replies in &lt;2h</span>
+            </div>
+            <a
+              href="https://wa.me/919059478739"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-mono text-[10px] font-bold shadow-xs hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+            >
+              <PhoneCall size={11} strokeWidth={2.4} />
+              <span>WhatsApp: +91 90594 78739</span>
+              <ArrowUpRight size={10} />
+            </a>
+            <a
+              href="mailto:hello@sakethgoljana.tech"
+              className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 border border-black/10 dark:border-white/15 text-[var(--foreground)] font-mono text-[10px] font-medium transition-all"
+            >
+              <Mail size={11} />
+              <span>hello@sakethgoljana.tech</span>
+            </a>
+            <button
+              type="button"
+              onClick={() => scrollToSection("contact", isMobile)}
+              className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--foreground)] hover:opacity-90 text-[var(--background)] font-mono text-[10px] font-bold shadow-xs hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+            >
+              <span>Jump to Booking & Brief Form</span>
+              <ArrowDown size={11} strokeWidth={2.4} />
+            </button>
+          </div>
+        )}
+
+        {/* 2. PROJECT / DISPATCH ACTION CARD */}
+        {m.hasApkAction && (
+          <div className="mt-2.5 pt-2 border-t border-black/8 dark:border-white/10 flex flex-col gap-1.5 animate-in fade-in duration-200">
+            <div className="flex items-center justify-between text-[9px] font-mono font-bold text-emerald-600 dark:text-emerald-400 px-0.5">
+              <span>📱 FLAGSHIP · DISPATCH</span>
+              <span>v1.0.0</span>
+            </div>
+            <a
+              href="https://github.com/SakethGoljana/Dispatch/releases/latest/download/dispatch-v1.0.0.apk"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold font-mono text-[10px] shadow-xs hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+            >
+              <Download size={11} strokeWidth={2.4} />
+              <span>Download Standalone APK</span>
+            </a>
+            <div className="grid grid-cols-2 gap-1.5">
+              <a
+                href="https://github.com/SakethGoljana/Dispatch"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-1 px-2 py-1 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 border border-black/10 dark:border-white/15 text-[var(--foreground)] font-mono text-[9px] font-medium transition-all"
+              >
+                <span>GitHub Repo</span>
+                <ArrowUpRight size={9} />
+              </a>
+              <button
+                type="button"
+                onClick={() => scrollToSection("work", isMobile)}
+                className="inline-flex items-center justify-center gap-1 px-2 py-1 rounded-xl bg-[var(--foreground)] text-[var(--background)] font-mono text-[9px] font-bold hover:opacity-90 transition-all cursor-pointer"
+              >
+                <span>View Case Study</span>
+                <ArrowDown size={9} />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* 3. TURNAROUND & RATES ACTION CARD */}
+        {m.hasTurnaroundAction && (
+          <div className="mt-2.5 pt-2 border-t border-black/8 dark:border-white/10 flex flex-col gap-1.5 animate-in fade-in duration-200">
+            <div className="grid grid-cols-2 gap-1.5">
+              <div className="p-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center">
+                <div className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 font-mono">1–2 WEEKS</div>
+                <div className="text-[8px] text-[var(--subtext)] uppercase font-mono">Working MVP</div>
+              </div>
+              <div className="p-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center">
+                <div className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 font-mono">3–4 WEEKS</div>
+                <div className="text-[8px] text-[var(--subtext)] uppercase font-mono">Production App</div>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => scrollToSection("contact", isMobile)}
+              className="w-full inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl bg-[var(--foreground)] hover:opacity-90 text-[var(--background)] font-mono text-[10px] font-bold shadow-xs transition-all cursor-pointer"
+            >
+              <span>Book a Sprint Call</span>
+              <ArrowDown size={10} strokeWidth={2.4} />
+            </button>
+          </div>
+        )}
+
+        {/* 4. ABSTRACT & TECH STACK ACTION CARD */}
+        {m.hasAbstractAction && (
+          <div className="mt-2.5 pt-2 border-t border-black/8 dark:border-white/10 flex flex-col gap-1.5 animate-in fade-in duration-200">
+            <div className="flex flex-wrap gap-1">
+              <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-mono text-[9px] font-bold">React Native 0.88</span>
+              <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-mono text-[9px] font-bold">Expo SDK 58</span>
+              <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-mono text-[9px] font-bold">Next.js 16</span>
+              <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-mono text-[9px] font-bold">SheetJS</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => scrollToSection("capabilities", isMobile)}
+              className="w-full inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 border border-black/10 dark:border-white/15 text-[var(--foreground)] font-mono text-[10px] font-semibold transition-all cursor-pointer"
+            >
+              <span>Explore Capabilities & Flow</span>
+              <ArrowDown size={10} />
+            </button>
+          </div>
+        )}
+      </>
+    );
   };
 
   return (
@@ -333,43 +503,8 @@ export default function IPhoneAIChat() {
                     >
                       <div>{m.text}</div>
 
-                      {/* Interactive Dispatch APK Download Button */}
-                      {isAssistant && m.hasApkAction && (
-                        <div className="mt-2.5 pt-2 border-t border-black/8 dark:border-white/10 flex flex-col gap-1.5 animate-in fade-in duration-200">
-                          <a
-                            href="https://github.com/SakethGoljana/Dispatch/releases/latest/download/dispatch-v1.0.0.apk"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold font-mono text-[10px] shadow-xs hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
-                          >
-                            <Download size={12} strokeWidth={2.6} />
-                            <span>Download Dispatch APK</span>
-                          </a>
-                        </div>
-                      )}
-
-                      {/* Interactive Contact CTA Button & WhatsApp Link */}
-                      {isAssistant && m.hasContactAction && (
-                        <div className="mt-2.5 pt-2 border-t border-black/8 dark:border-white/10 flex flex-col gap-1.5 animate-in fade-in duration-200">
-                          <button
-                            type="button"
-                            onClick={() => scrollToContact(false)}
-                            className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--foreground)] hover:opacity-90 text-[var(--background)] font-bold font-mono text-[10px] shadow-xs hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
-                          >
-                            <span>Jump to Contact Form</span>
-                            <ArrowDown size={11} strokeWidth={2.6} />
-                          </button>
-                          <a
-                            href="https://wa.me/919059478739"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/25 text-emerald-700 dark:text-emerald-400 font-mono text-[10px] font-semibold transition-all"
-                          >
-                            <span>WhatsApp Direct (+91 90594 78739)</span>
-                            <ArrowUpRight size={11} />
-                          </a>
-                        </div>
-                      )}
+                      {/* Interactive Rich Action Cards */}
+                      {renderActionCards(m, false)}
                     </div>
                   </div>
                 );
@@ -397,9 +532,13 @@ export default function IPhoneAIChat() {
                       sendMessage(shortcut.text);
                     }}
                     disabled={isLoading}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white dark:bg-[#1C1C1E] hover:bg-zinc-100 dark:hover:bg-[#25252A] border border-black/10 dark:border-white/15 text-[11px] font-medium text-[var(--foreground)] whitespace-nowrap shrink-0 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-xs disabled:opacity-50"
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium whitespace-nowrap shrink-0 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-xs disabled:opacity-50 ${
+                      shortcut.highlight
+                        ? "bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-emerald-500/20"
+                        : "bg-white dark:bg-[#1C1C1E] hover:bg-zinc-100 dark:hover:bg-[#25252A] border border-black/10 dark:border-white/15 text-[var(--foreground)]"
+                    }`}
                   >
-                    <Icon size={11} className="text-amber-500 shrink-0" strokeWidth={2} />
+                    <Icon size={11} className={shortcut.highlight ? "text-white shrink-0" : "text-amber-500 shrink-0"} strokeWidth={2} />
                     <span>{shortcut.label}</span>
                   </button>
                 );
@@ -532,34 +671,8 @@ export default function IPhoneAIChat() {
                     >
                       <div>{m.text}</div>
 
-                      {/* Interactive Dispatch APK Download Button */}
-                      {isAssistant && m.hasApkAction && (
-                        <div className="mt-2.5 pt-2 border-t border-[var(--border)] flex flex-col gap-1.5">
-                          <a
-                            href="https://github.com/SakethGoljana/Dispatch/releases/latest/download/dispatch-v1.0.0.apk"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold font-mono text-[11px] shadow-xs cursor-pointer"
-                          >
-                            <Download size={13} strokeWidth={2.6} />
-                            <span>Download Dispatch APK</span>
-                          </a>
-                        </div>
-                      )}
-
-                      {/* Interactive Contact Jump Button */}
-                      {isAssistant && m.hasContactAction && (
-                        <div className="mt-2.5 pt-2 border-t border-[var(--border)] flex flex-col gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => scrollToContact(true)}
-                            className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-[var(--foreground)] hover:opacity-90 text-[var(--background)] font-bold font-mono text-[11px] shadow-xs cursor-pointer"
-                          >
-                            <span>Jump to Contact Form</span>
-                            <ArrowDown size={13} strokeWidth={2.6} />
-                          </button>
-                        </div>
-                      )}
+                      {/* Interactive Rich Action Cards */}
+                      {renderActionCards(m, true)}
                     </div>
                   </div>
                 );
@@ -587,9 +700,13 @@ export default function IPhoneAIChat() {
                       sendMessage(shortcut.text);
                     }}
                     disabled={isLoading}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[var(--foreground)]/5 hover:bg-[var(--foreground)]/10 border border-[var(--border)] text-xs font-medium text-[var(--foreground)] whitespace-nowrap shrink-0 transition-all cursor-pointer disabled:opacity-50"
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shrink-0 transition-all cursor-pointer disabled:opacity-50 ${
+                      shortcut.highlight
+                        ? "bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-emerald-500/20"
+                        : "bg-[var(--foreground)]/5 hover:bg-[var(--foreground)]/10 border border-[var(--border)] text-[var(--foreground)]"
+                    }`}
                   >
-                    <Icon size={12} className="text-amber-500 shrink-0" strokeWidth={2} />
+                    <Icon size={12} className={shortcut.highlight ? "text-white shrink-0" : "text-amber-500 shrink-0"} strokeWidth={2} />
                     <span>{shortcut.label}</span>
                   </button>
                 );

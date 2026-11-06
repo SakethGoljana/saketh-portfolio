@@ -101,21 +101,49 @@ export async function POST(req: NextRequest) {
             : "";
 
           if (candidateText) {
-            const lower = candidateText.toLowerCase();
+            const lower = (candidateText + " " + cleanMsg).toLowerCase();
             const hasContact =
               lower.includes("whatsapp") ||
               lower.includes("call") ||
               lower.includes("contact") ||
-              lower.includes("hire");
+              lower.includes("hire") ||
+              lower.includes("email") ||
+              lower.includes("reach") ||
+              lower.includes("touch") ||
+              lower.includes("book");
+
             const hasApk =
               lower.includes("dispatch") ||
-              lower.includes("apk");
+              lower.includes("apk") ||
+              lower.includes("project") ||
+              lower.includes("app") ||
+              lower.includes("portfolio") ||
+              lower.includes("work");
+
+            const hasTurnaround =
+              lower.includes("turnaround") ||
+              lower.includes("timeline") ||
+              lower.includes("how long") ||
+              lower.includes("duration") ||
+              lower.includes("pricing") ||
+              lower.includes("price") ||
+              lower.includes("cost") ||
+              lower.includes("rate");
+
+            const hasAbstract =
+              lower.includes("stack") ||
+              lower.includes("philosophy") ||
+              lower.includes("abstract") ||
+              lower.includes("architecture") ||
+              lower.includes("capabilities");
 
             return NextResponse.json({
               reply: candidateText,
               isAi: true,
               hasContactAction: hasContact,
               hasApkAction: hasApk,
+              hasTurnaroundAction: hasTurnaround,
+              hasAbstractAction: hasAbstract,
             });
           }
         }
@@ -135,6 +163,7 @@ export async function POST(req: NextRequest) {
     if (lower.includes("price") || lower.includes("cost") || lower.includes("rate") || lower.includes("pricing")) {
       return NextResponse.json({
         reply: "Saketh runs on 100% transparent, fixed-scope sprint pricing. Zero hourly billing surprises, and definitely zero 'build my million-dollar idea for equity' gigs.",
+        hasTurnaroundAction: true,
         hasContactAction: true,
       });
     }
@@ -142,13 +171,21 @@ export async function POST(req: NextRequest) {
     if (lower.includes("turnaround") || lower.includes("time") || lower.includes("fast")) {
       return NextResponse.json({
         reply: "Saketh builds working MVPs in 1–2 weeks and full production mobile apps in 3–4 weeks, with weekly test builds sent straight to your phone.",
+        hasTurnaroundAction: true,
       });
     }
 
-    if (lower.includes("dispatch")) {
+    if (lower.includes("dispatch") || lower.includes("project") || lower.includes("work") || lower.includes("app")) {
       return NextResponse.json({
         reply: "Dispatch is Saketh's flagship mobile app that imports Excel sheets on your phone and sends personalized WhatsApp notices with 1 tap and 100% on-device privacy.",
         hasApkAction: true,
+      });
+    }
+
+    if (lower.includes("stack") || lower.includes("philosophy") || lower.includes("abstract") || lower.includes("tech")) {
+      return NextResponse.json({
+        reply: "Saketh engineers with React Native, Expo SDK 58, TypeScript, and Next.js. His core philosophy is zero-bloat architecture, obsessive UI craft, and on-device privacy.",
+        hasAbstractAction: true,
       });
     }
 
