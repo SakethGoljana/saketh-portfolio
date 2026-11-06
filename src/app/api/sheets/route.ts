@@ -36,21 +36,16 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const body = await req.json().catch(() => ({}));
-    const allowEmpty = Boolean(body?.allowEmpty);
-
     const leads = getLeads();
-    if (leads.length === 0 && !allowEmpty) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "No leads available locally. Bulk sync aborted to protect the sheet. Pass { allowEmpty: true } to explicitly clear the sheet.",
-        },
-        { status: 409 }
-      );
+    if (leads.length === 0) {
+      return NextResponse.json({
+        success: true,
+        message: "No local leads to sync. Existing Google Sheet rows remain preserved.",
+        syncedCount: 0,
+      });
     }
 
-    const result = await syncAllLeadsToGoogleSheet(leads, allowEmpty);
+    const result = await syncAllLeadsToGoogleSheet(leads);
 
     if (result.success) {
       return NextResponse.json({

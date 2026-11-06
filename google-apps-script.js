@@ -95,49 +95,65 @@ function doPost(e) {
       ).setMimeType(ContentService.MimeType.JSON);
     }
 
-    // BULK SYNC ALL LEADS (Atomic Batch Operation)
+    // BULK SYNC ALL LEADS (Safe Upsert by ID - Never wipes existing rows)
     if (payload.action === "sync_all") {
-      var isEmpty = !Array.isArray(payload.leads) || payload.leads.length === 0;
-      if (isEmpty && !payload.allowEmpty) {
+      if (!Array.isArray(payload.leads) || payload.leads.length === 0) {
         return ContentService.createTextOutput(
-          JSON.stringify({ error: "Empty or invalid leads array. Sync aborted to protect existing sheet data. Pass allowEmpty: true to confirm clearing." })
+          JSON.stringify({ status: "success", count: 0, message: "No leads to sync. Existing sheet data preserved." })
         ).setMimeType(ContentService.MimeType.JSON);
       }
 
-      sheet.clearContents();
-      sheet.appendRow(HEADERS);
-      var headerRange = sheet.getRange(1, 1, 1, HEADERS.length);
-      headerRange.setFontWeight("bold");
-      headerRange.setBackground("#121218");
-      headerRange.setFontColor("#D2FF3F");
-      sheet.setFrozenRows(1);
+      var data = sheet.getDataRange().getValues();
+      var idToRowMap = {};
+      for (var r = 1; r < data.length; r++) {
+        var existingId = String(data[r][0] || "").trim();
+        if (existingId) {
+          idToRowMap[existingId] = r + 1; // 1-indexed row number
+        }
+      }
 
-      if (Array.isArray(payload.leads) && payload.leads.length > 0) {
-        var rows = payload.leads.map(function (l) {
-          return [
-            escapeFormula(l.id),
-            escapeFormula(l.createdAt),
-            escapeFormula(l.type),
-            escapeFormula(l.status),
-            escapeFormula(l.name),
-            escapeFormula(l.contact),
-            escapeFormula(l.service),
-            escapeFormula(l.schedule),
-            escapeFormula(l.budgetOrPreference),
-            escapeFormula(l.currency || "USD"),
-            Number(l.dealValue) || 0,
-            Number(l.amountPaid) || 0,
-            Number(l.pendingBalance) || 0,
-            escapeFormula(l.paymentStatus),
-            escapeFormula(l.notes),
-            escapeFormula(l.internalNotes)
-          ];
-        });
-        sheet.getRange(2, 1, rows.length, HEADERS.length).setValues(rows);
+      var rowsToAppend = [];
+      var updatedCount = 0;
+      var appendedCount = 0;
+
+      for (var k = 0; k < payload.leads.length; k++) {
+        var l = payload.leads[k];
+        var rowValues = [
+          escapeFormula(l.id),
+          escapeFormula(l.createdAt),
+          escapeFormula(l.type),
+          escapeFormula(l.status),
+          escapeFormula(l.name),
+          escapeFormula(l.contact),
+          escapeFormula(l.service),
+          escapeFormula(l.schedule),
+          escapeFormula(l.budgetOrPreference),
+          escapeFormula(l.currency || "USD"),
+          Number(l.dealValue) || 0,
+          Number(l.amountPaid) || 0,
+          Number(l.pendingBalance) || 0,
+          escapeFormula(l.paymentStatus),
+          escapeFormula(l.notes),
+          escapeFormula(l.internalNotes)
+        ];
+
+        var leadIdStr = String(l.id || "").trim();
+        if (idToRowMap[leadIdStr]) {
+          sheet.getRange(idToRowMap[leadIdStr], 1, 1, HEADERS.length).setValues([rowValues]);
+          updatedCount++;
+        } else {
+          rowsToAppend.push(rowValues);
+          appendedCount++;
+        }
+      }
+
+      if (rowsToAppend.length > 0) {
+        var startRow = sheet.getLastRow() + 1;
+        sheet.getRange(startRow, 1, rowsToAppend.length, HEADERS.length).setValues(rowsToAppend);
       }
 
       return ContentService.createTextOutput(
-        JSON.stringify({ status: "success", count: payload.leads ? payload.leads.length : 0 })
+        JSON.stringify({ status: "success", count: payload.leads.length, updated: updatedCount, appended: appendedCount })
       ).setMimeType(ContentService.MimeType.JSON);
     }
 
