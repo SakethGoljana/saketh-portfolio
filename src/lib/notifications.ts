@@ -102,7 +102,7 @@ export async function sendLeadNotifications(lead: Lead): Promise<{
     `;
 
     // Try sending from custom sender, fallback to onboarding sender if domain is pending verification
-    let fromAddress = `${SENDER_NAME} <${SENDER_EMAIL}>`;
+    const fromAddress = `${SENDER_NAME} <${SENDER_EMAIL}>`;
     let response = await resend.emails.send({
       from: fromAddress,
       to: [ADMIN_EMAIL],
@@ -190,7 +190,7 @@ export async function sendLeadNotifications(lead: Lead): Promise<{
         </div>
       `;
 
-      let clientResponse = await resend.emails.send({
+      const clientResponse = await resend.emails.send({
         from: `${SENDER_NAME} <${SENDER_EMAIL}>`,
         to: [clientEmail],
         subject: isCall

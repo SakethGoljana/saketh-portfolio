@@ -57,6 +57,10 @@ const QUICK_SHORTCUTS = [
   },
 ];
 
+function createMessageId(prefix: string) {
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+}
+
 export default function IPhoneAIChat() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -137,7 +141,7 @@ export default function IPhoneAIChat() {
     triggerHaptic("snap");
 
     const userMsg: ChatMessage = {
-      id: `user-${Date.now()}`,
+      id: createMessageId("user"),
       role: "user",
       text,
       time: "Now",
@@ -202,7 +206,7 @@ export default function IPhoneAIChat() {
       setMessages((prev) => [
         ...prev,
         {
-          id: `ai-${Date.now()}`,
+          id: createMessageId("ai"),
           role: "assistant",
           text: reply,
           time: "Now",
@@ -217,7 +221,7 @@ export default function IPhoneAIChat() {
       setMessages((prev) => [
         ...prev,
         {
-          id: `ai-${Date.now()}`,
+          id: createMessageId("ai"),
           role: "assistant",
           text: "My circuits took a quick break. Ping Saketh directly on WhatsApp at +91 90594 78739!",
           time: "Now",

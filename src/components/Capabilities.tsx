@@ -189,7 +189,7 @@ function MobileCard({
       <div className="pt-3 px-1">
         <div className="flex items-center justify-between mb-1.5">
           <span className="font-mono text-[10px] font-semibold text-[var(--subtext)]">
-            0{index + 1} // {cap.tag}
+            0{index + 1} {"//"} {cap.tag}
           </span>
           <span className="font-mono text-[9px] font-bold px-2 py-0.5 rounded-full bg-[var(--foreground)]/5 border border-[var(--border)] text-[var(--foreground)]">
             {cap.badge}
@@ -502,7 +502,7 @@ export default function Capabilities() {
                 <div className="pt-4 px-1">
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-mono text-[11px] font-semibold text-[var(--subtext)]">
-                      0{idx + 1} // {cap.tag}
+                      0{idx + 1} {"//"} {cap.tag}
                     </span>
                     <span className="font-mono text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[var(--foreground)]/5 border border-[var(--border)] text-[var(--foreground)]">
                       {cap.badge}

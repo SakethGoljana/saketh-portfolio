@@ -41,7 +41,7 @@ function safeEnsureDataFile(): boolean {
       fs.writeFileSync(LEADS_FILE, JSON.stringify([], null, 2), "utf8");
     }
     return true;
-  } catch (err: any) {
+  } catch {
     // Read-only filesystem warning (normal in serverless lambda environments)
     return false;
   }

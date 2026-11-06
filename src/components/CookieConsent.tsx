@@ -14,11 +14,9 @@ declare global {
 }
 
 export default function CookieConsent() {
-  const [mounted, setMounted] = useState(false);
   const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     try {
       const consent = localStorage.getItem(CONSENT_STORAGE_KEY);
       if (!consent) {
@@ -48,8 +46,6 @@ export default function CookieConsent() {
 
     setShowBanner(false);
   };
-
-  if (!mounted) return null;
 
   return (
     <AnimatePresence>
