@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import type { Lead } from "./leads";
+import { isRateLimited } from "./rateLimit";
 
 function getResendClient(): Resend | null {
   const apiKey = process.env.RESEND_API_KEY?.trim();
@@ -143,8 +144,11 @@ export async function sendLeadNotifications(lead: Lead): Promise<{
   }
 
   // 2. Send Client Confirmation Email (if client provided a valid email address)
+  // Per-recipient anti-relay guard: max 1 confirmation email per address per 24 hours
   const isEmail = EMAIL_REGEX.test(lead.contact.trim());
-  if (isEmail) {
+  const recipientAllowed =
+    isEmail && !isRateLimited(`lead-mail:${lead.contact.trim().toLowerCase()}`, 1, 24 * 60 * 60 * 1000);
+  if (recipientAllowed) {
     try {
       const clientEmail = lead.contact.trim();
       const firstName = lead.name.trim().split(" ")[0] || "there";
@@ -208,7 +212,7 @@ export async function sendLeadNotifications(lead: Lead): Promise<{
         from: `${SENDER_NAME} <${SENDER_EMAIL}>`,
         to: [clientEmail],
         subject: isCall
-          ? `Confirmed: Discovery Call with Saketh Goljana (${lead.day || "Upcoming"})`
+          ? `Received: Discovery Call Request with Saketh Goljana (${lead.day || "Upcoming"})`
           : `Received: Project Inquiry with Saketh Goljana`,
         html: clientHtml,
       });

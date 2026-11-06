@@ -146,6 +146,9 @@ export async function POST(req: NextRequest) {
               hasAbstractAction: hasAbstract,
             });
           }
+        } else {
+          const errText = await geminiRes.text().catch(() => "");
+          console.warn(`Gemini API returned HTTP ${geminiRes.status}: ${errText.slice(0, 200)}`);
         }
       } catch (err) {
         console.error("Gemini API error:", err);

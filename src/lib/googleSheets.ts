@@ -186,3 +186,58 @@ export async function syncAllLeadsToGoogleSheet(leads: Lead[], allowEmpty = fals
     };
   }
 }
+
+/**
+ * Selectively delete a single lead from Google Sheets without wiping or rewriting the entire sheet.
+ */
+export async function deleteLeadFromGoogleSheet(id: string): Promise<SheetSyncResult> {
+  const webhookUrl = getGoogleSheetWebhookUrl();
+  const secret = getGoogleSheetSecret();
+  if (!webhookUrl || !secret) {
+    return {
+      success: false,
+      configured: false,
+      message: "Google Sheets Webhook URL or GOOGLE_SHEETS_SECRET not configured in .env.local",
+    };
+  }
+
+  try {
+    const payload = {
+      action: "delete_lead",
+      authSecret: secret,
+      id,
+      timestamp: new Date().toISOString(),
+    };
+
+    const res = await fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(8000),
+    });
+
+    const body = await res.json().catch(() => null);
+    if (res.ok && body?.status === "success") {
+      return {
+        success: true,
+        configured: true,
+        syncedCount: body.deleted ? 1 : 0,
+        message: body.deleted ? `Lead ${id} removed from Google Sheet` : `Lead ${id} not found in Google Sheet`,
+      };
+    } else {
+      return {
+        success: false,
+        configured: true,
+        message: body?.message || body?.error || `Google Sheets webhook returned HTTP ${res.status}`,
+      };
+    }
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    console.warn("Failed to delete lead from Google Sheets:", errorMsg);
+    return {
+      success: false,
+      configured: true,
+      message: errorMsg,
+    };
+  }
+}

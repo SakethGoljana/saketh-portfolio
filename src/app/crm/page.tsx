@@ -74,14 +74,27 @@ function formatTimeAgo(isoString: string): string {
 }
 
 const GOOGLE_APPS_SCRIPT_TEMPLATE = `/**
- * Saketh Portfolio - Secure Google Sheets Webhook Sync Script
+ * ====================================================================
+ * SAKETH PORTFOLIO - SECURE GOOGLE SHEETS CRM & LEAD SYNC SCRIPT
+ * ====================================================================
+ * Automatically syncs incoming call bookings, project briefs, and
+ * payment updates in real time with shared token authentication
+ * and CSV/Formula injection protection.
+ *
+ * HOW TO SET UP (Takes 60 seconds):
  * 1. Open your Google Sheet -> Click Extensions > Apps Script
- * 2. Delete everything and paste this code
+ * 2. Delete everything and paste this entire code
  * 3. Go to Project Settings (gear icon) > Script Properties > Add script property:
  *    Property: SCRIPT_SECRET | Value: (same value as GOOGLE_SHEETS_SECRET in .env.local)
- * 4. Deploy > New deployment > Web app (Execute as: Me, Access: Anyone)
- * 5. Paste Web app URL into .env.local as GOOGLE_SHEET_WEBHOOK_URL
+ * 4. Click "Save" (Ctrl+S / Cmd+S)
+ * 5. Click "Deploy" > "New deployment" (or "Manage deployments" -> Edit -> "New version")
+ * 6. Set type: "Web app", "Execute as": "Me", "Who has access": "Anyone"
+ * 7. Click "Deploy" and copy the Web App URL into .env.local as GOOGLE_SHEET_WEBHOOK_URL
+ * ====================================================================
  */
+
+// Reads secret key from Script Properties (Project Settings > Script Properties: SCRIPT_SECRET)
+// Matching GOOGLE_SHEETS_SECRET in .env.local
 var SCRIPT_SECRET = PropertiesService.getScriptProperties().getProperty("SCRIPT_SECRET");
 
 function escapeFormula(val) {
@@ -95,73 +108,140 @@ function escapeFormula(val) {
 }
 
 function doPost(e) {
+  var lock = LockService.getScriptLock();
+  lock.waitLock(20000);
   try {
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     var payload = JSON.parse(e.postData.contents);
 
-    // Strictly verify secret token to prevent unauthorized tampering
+    // SECURITY CHECK: Strictly require authentication secret match
     if (!SCRIPT_SECRET || payload.authSecret !== SCRIPT_SECRET) {
       return ContentService.createTextOutput(
-        JSON.stringify({ status: "error", error: "Unauthorized access token" })
+        JSON.stringify({ status: "error", error: "Unauthorized: Invalid authentication secret token." })
       ).setMimeType(ContentService.MimeType.JSON);
     }
-    
+
     var HEADERS = [
-      "ID", "Date & Time", "Type", "Status", "Name", "Contact", 
-      "Service", "Schedule", "Budget / Model", "Deal Value ($)", 
-      "Amount Paid ($)", "Pending Balance ($)", "Payment Status", 
-      "Client Notes", "Internal Notes"
+      "ID",
+      "Date & Time",
+      "Type",
+      "Status",
+      "Name",
+      "Contact (Email/WhatsApp)",
+      "Service Requested",
+      "Booked Schedule",
+      "Budget / Model",
+      "Deal Value ($)",
+      "Amount Paid ($)",
+      "Pending Balance ($)",
+      "Payment Status",
+      "Client Notes",
+      "Internal Notes"
     ];
 
-    // Ensure header row exists
+    // Auto-create stylish header row if sheet is empty
     if (sheet.getLastRow() === 0) {
       sheet.appendRow(HEADERS);
-      sheet.getRange(1, 1, 1, HEADERS.length).setFontWeight("bold").setBackground("#121218").setFontColor("#D2FF3F");
+      var headerRange = sheet.getRange(1, 1, 1, HEADERS.length);
+      headerRange.setFontWeight("bold");
+      headerRange.setBackground("#121218");
+      headerRange.setFontColor("#D2FF3F");
       sheet.setFrozenRows(1);
     }
 
+    // DELETE SINGLE LEAD (Selective row removal)
+    if (payload.action === "delete_lead") {
+      if (!payload.id || typeof payload.id !== "string") {
+        return ContentService.createTextOutput(
+          JSON.stringify({ status: "error", error: "Missing lead id for delete_lead action" })
+        ).setMimeType(ContentService.MimeType.JSON);
+      }
+      var allData = sheet.getDataRange().getValues();
+      var deleted = false;
+      for (var d = allData.length - 1; d >= 1; d--) {
+        if (allData[d][0] === payload.id) {
+          sheet.deleteRow(d + 1);
+          deleted = true;
+        }
+      }
+      return ContentService.createTextOutput(
+        JSON.stringify({ status: "success", deleted: deleted, id: payload.id })
+      ).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // BULK SYNC ALL LEADS (Atomic Batch Operation)
     if (payload.action === "sync_all") {
       var isEmpty = !Array.isArray(payload.leads) || payload.leads.length === 0;
       if (isEmpty && !payload.allowEmpty) {
         return ContentService.createTextOutput(
-          JSON.stringify({ error: "Empty leads array. Pass allowEmpty: true to confirm." })
+          JSON.stringify({ error: "Empty or invalid leads array. Sync aborted to protect existing sheet data. Pass allowEmpty: true to confirm clearing." })
         ).setMimeType(ContentService.MimeType.JSON);
       }
+
       sheet.clearContents();
       sheet.appendRow(HEADERS);
-      sheet.getRange(1, 1, 1, HEADERS.length).setFontWeight("bold").setBackground("#121218").setFontColor("#D2FF3F");
+      var headerRange = sheet.getRange(1, 1, 1, HEADERS.length);
+      headerRange.setFontWeight("bold");
+      headerRange.setBackground("#121218");
+      headerRange.setFontColor("#D2FF3F");
       sheet.setFrozenRows(1);
-      
+
       if (Array.isArray(payload.leads) && payload.leads.length > 0) {
-        var rows = payload.leads.map(function(l) {
+        var rows = payload.leads.map(function (l) {
           return [
-            escapeFormula(l.id), escapeFormula(l.createdAt), escapeFormula(l.type), escapeFormula(l.status), escapeFormula(l.name), escapeFormula(l.contact),
-            escapeFormula(l.service), escapeFormula(l.schedule), escapeFormula(l.budgetOrPreference), Number(l.dealValue) || 0,
-            Number(l.amountPaid) || 0, Number(l.pendingBalance) || 0, escapeFormula(l.paymentStatus),
-            escapeFormula(l.notes), escapeFormula(l.internalNotes)
+            escapeFormula(l.id),
+            escapeFormula(l.createdAt),
+            escapeFormula(l.type),
+            escapeFormula(l.status),
+            escapeFormula(l.name),
+            escapeFormula(l.contact),
+            escapeFormula(l.service),
+            escapeFormula(l.schedule),
+            escapeFormula(l.budgetOrPreference),
+            Number(l.dealValue) || 0,
+            Number(l.amountPaid) || 0,
+            Number(l.pendingBalance) || 0,
+            escapeFormula(l.paymentStatus),
+            escapeFormula(l.notes),
+            escapeFormula(l.internalNotes)
           ];
         });
         sheet.getRange(2, 1, rows.length, HEADERS.length).setValues(rows);
       }
-      return ContentService.createTextOutput(JSON.stringify({ status: "success", count: payload.leads ? payload.leads.length : 0 })).setMimeType(ContentService.MimeType.JSON);
+
+      return ContentService.createTextOutput(
+        JSON.stringify({ status: "success", count: payload.leads ? payload.leads.length : 0 })
+      ).setMimeType(ContentService.MimeType.JSON);
     }
 
-    // Single lead sync (updates existing or appends new)
+    // SINGLE LEAD SYNC (Updates existing row or appends new row)
     var l = payload.lead;
     var data = sheet.getDataRange().getValues();
     var rowIndex = -1;
+
     for (var i = 1; i < data.length; i++) {
       if (data[i][0] === l.id) {
-        rowIndex = i + 1;
+        rowIndex = i + 1; // 1-indexed row number
         break;
       }
     }
 
     var rowValues = [
-      escapeFormula(l.id), escapeFormula(l.createdAt), escapeFormula(l.type), escapeFormula(l.status), escapeFormula(l.name), escapeFormula(l.contact),
-      escapeFormula(l.service), escapeFormula(l.schedule), escapeFormula(l.budgetOrPreference), Number(l.dealValue) || 0,
-      Number(l.amountPaid) || 0, Number(l.pendingBalance) || 0, escapeFormula(l.paymentStatus),
-      escapeFormula(l.notes), escapeFormula(l.internalNotes)
+      escapeFormula(l.id),
+      escapeFormula(l.createdAt),
+      escapeFormula(l.type),
+      escapeFormula(l.status),
+      escapeFormula(l.name),
+      escapeFormula(l.contact),
+      escapeFormula(l.service),
+      escapeFormula(l.schedule),
+      escapeFormula(l.budgetOrPreference),
+      Number(l.dealValue) || 0,
+      Number(l.amountPaid) || 0,
+      Number(l.pendingBalance) || 0,
+      escapeFormula(l.paymentStatus),
+      escapeFormula(l.notes),
+      escapeFormula(l.internalNotes)
     ];
 
     if (rowIndex > 0) {
@@ -170,9 +250,18 @@ function doPost(e) {
       sheet.appendRow(rowValues);
     }
 
-    return ContentService.createTextOutput(JSON.stringify({ status: "success", id: l.id })).setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(
+      JSON.stringify({ status: "success", id: l.id })
+    ).setMimeType(ContentService.MimeType.JSON);
+
   } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({ status: "error", message: err.toString() })).setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(
+      JSON.stringify({ status: "error", message: err.toString() })
+    ).setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    try {
+      lock.releaseLock();
+    } catch (e) {}
   }
 };`;
 
@@ -319,7 +408,9 @@ export default function CrmStudio() {
       }, 0);
       return () => clearTimeout(timer);
     }
-  }, [selectedLead, selectedLeadId]);
+    // Re-sync form fields only when the user selects a different lead
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedLeadId]);
 
   // Handle Login via either PIN or Password
   const handleLogin = async (e?: React.FormEvent) => {
@@ -530,17 +621,19 @@ export default function CrmStudio() {
     return leads.filter((l) => l.stage === selectedFilter);
   }, [leads, selectedFilter]);
 
-  // Aggregate Metrics & Financials
-  const totalPipelineValue = useMemo(() => {
-    return leads.reduce((sum, l) => sum + (l.dealValue || 0), 0);
-  }, [leads]);
-
-  const totalCollected = useMemo(() => {
-    return leads.reduce((sum, l) => sum + (l.amountPaid || 0), 0);
-  }, [leads]);
-
-  const totalPending = useMemo(() => {
-    return leads.reduce((sum, l) => sum + Math.max(0, (l.dealValue || 0) - (l.amountPaid || 0)), 0);
+  // Aggregate Metrics & Financials (grouped by currency to prevent mixed summation)
+  const totalsByCurrency = useMemo(() => {
+    const t: Record<"USD" | "INR", { pipeline: number; collected: number; pending: number }> = {
+      USD: { pipeline: 0, collected: 0, pending: 0 },
+      INR: { pipeline: 0, collected: 0, pending: 0 },
+    };
+    for (const l of leads) {
+      const curr = l.currency === "INR" ? "INR" : "USD";
+      t[curr].pipeline += l.dealValue || 0;
+      t[curr].collected += l.amountPaid || 0;
+      t[curr].pending += Math.max(0, (l.dealValue || 0) - (l.amountPaid || 0));
+    }
+    return t;
   }, [leads]);
 
   // Clean WhatsApp URL
@@ -791,8 +884,14 @@ export default function CrmStudio() {
               <span>Total Pipeline</span>
               <DollarSign size={15} className="text-[var(--accent)]" />
             </div>
-            <div className="text-xl sm:text-2xl font-bold font-mono text-[#F4F4F0]">
-              ${totalPipelineValue.toLocaleString()}
+            <div className="text-xl sm:text-2xl font-bold font-mono text-[#F4F4F0] truncate">
+              {totalsByCurrency.USD.pipeline > 0 || totalsByCurrency.INR.pipeline === 0
+                ? `$${totalsByCurrency.USD.pipeline.toLocaleString()}`
+                : ""}
+              {totalsByCurrency.USD.pipeline > 0 && totalsByCurrency.INR.pipeline > 0 ? " + " : ""}
+              {totalsByCurrency.INR.pipeline > 0
+                ? `₹${totalsByCurrency.INR.pipeline.toLocaleString()}`
+                : ""}
             </div>
             <div className="text-[10px] text-[#71717A] mt-1 font-mono">Agreed deal value</div>
           </div>
@@ -802,8 +901,14 @@ export default function CrmStudio() {
               <span>Cash Collected</span>
               <CreditCard size={15} className="text-[#7CF4D4]" />
             </div>
-            <div className="text-xl sm:text-2xl font-bold font-mono text-[#7CF4D4]">
-              ${totalCollected.toLocaleString()}
+            <div className="text-xl sm:text-2xl font-bold font-mono text-[#7CF4D4] truncate">
+              {totalsByCurrency.USD.collected > 0 || totalsByCurrency.INR.collected === 0
+                ? `$${totalsByCurrency.USD.collected.toLocaleString()}`
+                : ""}
+              {totalsByCurrency.USD.collected > 0 && totalsByCurrency.INR.collected > 0 ? " + " : ""}
+              {totalsByCurrency.INR.collected > 0
+                ? `₹${totalsByCurrency.INR.collected.toLocaleString()}`
+                : ""}
             </div>
             <div className="text-[10px] text-[#71717A] mt-1 font-mono">Deposits &amp; full payments</div>
           </div>
@@ -813,8 +918,14 @@ export default function CrmStudio() {
               <span>Pending Balance</span>
               <TrendingUp size={15} className="text-[#FF7A59]" />
             </div>
-            <div className="text-xl sm:text-2xl font-bold font-mono text-[#FF7A59]">
-              ${totalPending.toLocaleString()}
+            <div className="text-xl sm:text-2xl font-bold font-mono text-[#FF7A59] truncate">
+              {totalsByCurrency.USD.pending > 0 || totalsByCurrency.INR.pending === 0
+                ? `$${totalsByCurrency.USD.pending.toLocaleString()}`
+                : ""}
+              {totalsByCurrency.USD.pending > 0 && totalsByCurrency.INR.pending > 0 ? " + " : ""}
+              {totalsByCurrency.INR.pending > 0
+                ? `₹${totalsByCurrency.INR.pending.toLocaleString()}`
+                : ""}
             </div>
             <div className="text-[10px] text-[#71717A] mt-1 font-mono">Outstanding payments</div>
           </div>
@@ -1059,7 +1170,7 @@ export default function CrmStudio() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="crm-deal-value" className="block text-xs font-mono text-[#A1A1AA] mb-1.5">
-                      Total Agreed Deal Value ($)
+                      Total Agreed Deal Value ({editCurrency === "INR" ? "₹ INR" : "$ USD"})
                     </label>
                     <input
                       id="crm-deal-value"
@@ -1067,13 +1178,13 @@ export default function CrmStudio() {
                       value={editDealValue}
                       onChange={(e) => setEditDealValue(Number(e.target.value))}
                       className="w-full px-3.5 py-2.5 rounded-xl bg-[#0A0A0E] border border-[#242432] focus:border-[var(--accent)] outline-none text-sm font-mono text-[#F4F4F0]"
-                      placeholder="e.g. 3500"
+                      placeholder={editCurrency === "INR" ? "e.g. 150000" : "e.g. 3500"}
                     />
                   </div>
 
                   <div>
                     <label htmlFor="crm-amount-paid" className="block text-xs font-mono text-[#A1A1AA] mb-1.5">
-                      Amount Paid / Received ($)
+                      Amount Paid / Received ({editCurrency === "INR" ? "₹ INR" : "$ USD"})
                     </label>
                     <input
                       id="crm-amount-paid"
@@ -1081,7 +1192,7 @@ export default function CrmStudio() {
                       value={editAmountPaid}
                       onChange={(e) => setEditAmountPaid(Number(e.target.value))}
                       className="w-full px-3.5 py-2.5 rounded-xl bg-[#0A0A0E] border border-[#242432] focus:border-[#7CF4D4] outline-none text-sm font-mono text-[#7CF4D4]"
-                      placeholder="e.g. 1750"
+                      placeholder={editCurrency === "INR" ? "e.g. 75000" : "e.g. 1750"}
                     />
                   </div>
                 </div>
@@ -1096,15 +1207,15 @@ export default function CrmStudio() {
                         : "text-[#7CF4D4]"
                     }`}
                   >
-                    ${Math.max(0, editDealValue - editAmountPaid).toLocaleString()}
+                    {editCurrency === "INR" ? "₹" : "$"}{Math.max(0, editDealValue - editAmountPaid).toLocaleString()}
                   </span>
                 </div>
 
                 {/* Payment Stage Buttons */}
-                <div>
-                  <label className="block text-xs font-mono text-[#A1A1AA] mb-2">
+                <div role="group" aria-labelledby="crm-payment-status-label">
+                  <span id="crm-payment-status-label" className="block text-xs font-mono text-[#A1A1AA] mb-2">
                     Payment Status
-                  </label>
+                  </span>
                   <div className="flex flex-wrap gap-2">
                     {[
                       { key: "unpaid", label: "Unpaid (0%)" },
@@ -1116,6 +1227,7 @@ export default function CrmStudio() {
                         <button
                           key={opt.key}
                           type="button"
+                          aria-pressed={active}
                           onClick={() => setEditPaymentStatus(opt.key as LeadItem["paymentStatus"])}
                           className={`text-xs font-mono px-3 py-1.5 rounded-lg border transition-all cursor-pointer ${
                             active
@@ -1306,6 +1418,12 @@ export default function CrmStudio() {
                 </li>
                 <li>
                   Replace everything in the editor with the copied script and click <strong className="text-[#F4F4F0]">Save (Ctrl+S)</strong>.
+                </li>
+                <li>
+                  Click <strong className="text-[#F4F4F0]">Project Settings (gear icon) &gt; Script Properties &gt; Add script property</strong>:
+                  <div className="mt-1 p-2 rounded-lg bg-[#07070A] border border-[#22222E] font-mono text-[11px] text-[#7CF4D4] select-all">
+                    Property: SCRIPT_SECRET | Value: (same value as GOOGLE_SHEETS_SECRET in .env.local)
+                  </div>
                 </li>
                 <li>
                   Click <strong className="text-[#F4F4F0]">Deploy &gt; New deployment</strong>, choose <strong className="text-[#F4F4F0]">Web app</strong>, set <em>Execute as: Me</em> and <em>Who has access: Anyone</em>, then click Deploy.

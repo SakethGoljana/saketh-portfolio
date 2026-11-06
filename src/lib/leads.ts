@@ -1,4 +1,5 @@
 import fs from "fs";
+import os from "os";
 import path from "path";
 
 export interface Lead {
@@ -26,6 +27,7 @@ export interface Lead {
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const LEADS_FILE = path.join(DATA_DIR, "leads.json");
+const FALLBACK_LEADS_FILE = path.join(os.tmpdir(), "saketh_portfolio_leads.json");
 
 // In-memory fallback cache for serverless environments with read-only filesystems (e.g., Vercel)
 let inMemoryLeads: Lead[] = [];
@@ -50,8 +52,12 @@ function safeEnsureDataFile(): boolean {
 export function getLeads(): Lead[] {
   try {
     safeEnsureDataFile();
-    if (fs.existsSync(LEADS_FILE)) {
-      const raw = fs.readFileSync(LEADS_FILE, "utf8");
+    let target = LEADS_FILE;
+    if (!fs.existsSync(target) && fs.existsSync(FALLBACK_LEADS_FILE)) {
+      target = FALLBACK_LEADS_FILE;
+    }
+    if (fs.existsSync(target)) {
+      const raw = fs.readFileSync(target, "utf8");
       const fileData: Lead[] = JSON.parse(raw);
       if (Array.isArray(fileData)) {
         inMemoryLeads = fileData;
@@ -59,7 +65,13 @@ export function getLeads(): Lead[] {
       }
     }
   } catch (err) {
-    // Fall back to in-memory cache if filesystem is unavailable
+    // If leads.json is corrupted, preserve it as a backup before falling back
+    try {
+      if (fs.existsSync(LEADS_FILE)) {
+        fs.renameSync(LEADS_FILE, `${LEADS_FILE}.corrupt-${Date.now()}`);
+      }
+    } catch {}
+    console.warn("Leads storage: Fall back to in-memory cache, corrupted file backed up.", err);
   }
 
   return [...inMemoryLeads].sort(
@@ -67,8 +79,8 @@ export function getLeads(): Lead[] {
   );
 }
 
-export function saveLead(leadData: Omit<Lead, "id" | "createdAt" | "status">): Lead {
-  const leads = getLeads();
+export function saveLead(leadData: Omit<Lead, "id" | "createdAt" | "status">): { lead: Lead; persisted: boolean } {
+  getLeads();
 
   // Enforce reasonable string bounds to prevent memory/disk exhaustion
   const sanitizedName = String(leadData.name || "").trim().slice(0, 100);
@@ -92,28 +104,45 @@ export function saveLead(leadData: Omit<Lead, "id" | "createdAt" | "status">): L
   };
 
   inMemoryLeads.unshift(newLead);
-  atomicWriteLeadsFile(inMemoryLeads);
+  const persisted = atomicWriteLeadsFile(inMemoryLeads);
 
-  return newLead;
+  return { lead: newLead, persisted };
 }
 
 function atomicWriteLeadsFile(data: Lead[]): boolean {
+  let targetFile = LEADS_FILE;
+  let tempFile = `${LEADS_FILE}.${Date.now()}.tmp`;
   try {
     safeEnsureDataFile();
-    const tempFile = `${LEADS_FILE}.${Date.now()}.tmp`;
     fs.writeFileSync(tempFile, JSON.stringify(data, null, 2), "utf8");
-    fs.renameSync(tempFile, LEADS_FILE);
+    fs.renameSync(tempFile, targetFile);
     return true;
   } catch {
-    console.warn("Storage notice: Saved lead to in-memory storage (serverless read-only mode).");
-    return false;
+    try {
+      if (fs.existsSync(tempFile)) fs.unlinkSync(tempFile);
+    } catch {}
+    // Attempt fallback to writable /tmp directory in serverless environments for warm-container caching
+    try {
+      targetFile = FALLBACK_LEADS_FILE;
+      tempFile = `${FALLBACK_LEADS_FILE}.${Date.now()}.tmp`;
+      fs.writeFileSync(tempFile, JSON.stringify(data, null, 2), "utf8");
+      fs.renameSync(tempFile, targetFile);
+      // /tmp write succeeded for container warm cache, but return false so callers know it is ephemeral
+      return false;
+    } catch {
+      try {
+        if (fs.existsSync(tempFile)) fs.unlinkSync(tempFile);
+      } catch {}
+      console.warn("Storage notice: Saved lead to in-memory storage (serverless read-only mode).");
+      return false;
+    }
   }
 }
 
-export function updateLead(id: string, updates: Partial<Lead>): Lead | null {
-  const leads = getLeads();
+export function updateLead(id: string, updates: Partial<Lead>): { lead: Lead | null; persisted: boolean } {
+  getLeads();
   const index = inMemoryLeads.findIndex((l) => l.id === id);
-  if (index === -1) return null;
+  if (index === -1) return { lead: null, persisted: false };
 
   // Sanitize internal notes if provided
   const sanitizedUpdates = { ...updates };
@@ -126,12 +155,12 @@ export function updateLead(id: string, updates: Partial<Lead>): Lead | null {
     ...sanitizedUpdates,
   };
 
-  atomicWriteLeadsFile(inMemoryLeads);
+  const persisted = atomicWriteLeadsFile(inMemoryLeads);
 
-  return inMemoryLeads[index];
+  return { lead: inMemoryLeads[index], persisted };
 }
 
-export const updateLeadStatus = (id: string, status: Lead["status"]): Lead | null => {
+export const updateLeadStatus = (id: string, status: Lead["status"]): { lead: Lead | null; persisted: boolean } => {
   return updateLead(id, { status });
 };
 

@@ -9,8 +9,9 @@ const nextConfig: NextConfig = {
     "localhost:3000",
     "0.0.0.0",
     "0.0.0.0:3000",
-    "192.168.31.80:3000",
-    "192.168.31.80",
+    ...(process.env.ALLOWED_DEV_ORIGINS
+      ? process.env.ALLOWED_DEV_ORIGINS.split(",").map((s) => s.trim())
+      : []),
   ],
 
   turbopack: {

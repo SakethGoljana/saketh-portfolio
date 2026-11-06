@@ -33,6 +33,8 @@ function escapeFormula(val) {
 }
 
 function doPost(e) {
+  var lock = LockService.getScriptLock();
+  lock.waitLock(20000);
   try {
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     var payload = JSON.parse(e.postData.contents);
@@ -70,6 +72,26 @@ function doPost(e) {
       headerRange.setBackground("#121218");
       headerRange.setFontColor("#D2FF3F");
       sheet.setFrozenRows(1);
+    }
+
+    // DELETE SINGLE LEAD (Selective row removal)
+    if (payload.action === "delete_lead") {
+      if (!payload.id || typeof payload.id !== "string") {
+        return ContentService.createTextOutput(
+          JSON.stringify({ status: "error", error: "Missing lead id for delete_lead action" })
+        ).setMimeType(ContentService.MimeType.JSON);
+      }
+      var allData = sheet.getDataRange().getValues();
+      var deleted = false;
+      for (var d = allData.length - 1; d >= 1; d--) {
+        if (allData[d][0] === payload.id) {
+          sheet.deleteRow(d + 1);
+          deleted = true;
+        }
+      }
+      return ContentService.createTextOutput(
+        JSON.stringify({ status: "success", deleted: deleted, id: payload.id })
+      ).setMimeType(ContentService.MimeType.JSON);
     }
 
     // BULK SYNC ALL LEADS (Atomic Batch Operation)
@@ -139,9 +161,9 @@ function doPost(e) {
       escapeFormula(l.service),
       escapeFormula(l.schedule),
       escapeFormula(l.budgetOrPreference),
-      l.dealValue,
-      l.amountPaid,
-      l.pendingBalance,
+      Number(l.dealValue) || 0,
+      Number(l.amountPaid) || 0,
+      Number(l.pendingBalance) || 0,
       escapeFormula(l.paymentStatus),
       escapeFormula(l.notes),
       escapeFormula(l.internalNotes)
@@ -161,5 +183,9 @@ function doPost(e) {
     return ContentService.createTextOutput(
       JSON.stringify({ status: "error", message: err.toString() })
     ).setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    try {
+      lock.releaseLock();
+    } catch (e) {}
   }
 }

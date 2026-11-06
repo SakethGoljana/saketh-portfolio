@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse, after } from "next/server";
 import { getLeads, saveLead, updateLead, deleteLead, type Lead } from "@/lib/leads";
 import { isAuthenticatedRequest } from "@/lib/auth";
-import { syncLeadToGoogleSheet } from "@/lib/googleSheets";
+import { syncLeadToGoogleSheet, deleteLeadFromGoogleSheet } from "@/lib/googleSheets";
 import { sendLeadNotifications } from "@/lib/notifications";
 import { getClientIp, isRateLimited } from "@/lib/rateLimit";
 
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const lead = saveLead({
+    const { lead, persisted } = saveLead({
       type,
       name: String(name).trim().slice(0, 100),
       contact: String(contact).trim().slice(0, 150),
@@ -85,17 +85,25 @@ export async function POST(req: NextRequest) {
       notes: notes ? String(notes).trim().slice(0, 2000) : "",
     });
 
+    if (!persisted) {
+      console.warn("Storage notice: Lead held in memory; local file persistence unavailable.");
+    }
+
     // Fail-proof async sync to Google Sheets & Email Notifications via after()
-    after(() => {
-      syncLeadToGoogleSheet(lead).catch((err) => {
-        console.warn("Background sheet sync notice:", err);
-      });
-      sendLeadNotifications(lead).catch((err) => {
-        console.warn("Background email notification notice:", err);
-      });
+    after(async () => {
+      const [sheet, mail] = await Promise.allSettled([
+        syncLeadToGoogleSheet(lead),
+        sendLeadNotifications(lead),
+      ]);
+      if (sheet.status === "rejected" || !sheet.value.success) {
+        console.warn("Background sheet sync failed or not configured:", sheet);
+      }
+      if (mail.status === "rejected") {
+        console.warn("Background email notification failed:", mail.reason);
+      }
     });
 
-    return NextResponse.json({ success: true, lead }, { status: 201 });
+    return NextResponse.json({ success: true, lead, persisted }, { status: 201 });
   } catch (error) {
     console.error("POST /api/leads error:", error);
     return NextResponse.json(
@@ -161,7 +169,7 @@ export async function PATCH(req: NextRequest) {
       }
     }
 
-    const updated = updateLead(id, sanitizedUpdates);
+    const { lead: updated, persisted } = updateLead(id, sanitizedUpdates);
     if (!updated) {
       return NextResponse.json(
         { success: false, error: "Lead not found." },
@@ -169,14 +177,19 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
+    if (!persisted) {
+      console.warn("Storage notice: Lead updated in memory; local file persistence unavailable.");
+    }
+
     // Sync updated terms & payment state to Google Sheets via after()
-    after(() => {
-      syncLeadToGoogleSheet(updated).catch((err) => {
-        console.warn("Background sheet sync notice:", err);
-      });
+    after(async () => {
+      const res = await syncLeadToGoogleSheet(updated);
+      if (!res.success) {
+        console.warn("Background sheet sync notice:", res.message);
+      }
     });
 
-    return NextResponse.json({ success: true, lead: updated });
+    return NextResponse.json({ success: true, lead: updated, persisted });
   } catch (error) {
     console.error("PATCH /api/leads error:", error);
     return NextResponse.json(
@@ -213,6 +226,14 @@ export async function DELETE(req: NextRequest) {
         { status: 404 }
       );
     }
+
+    // Mirror selective lead deletion to Google Sheets in background
+    after(async () => {
+      const res = await deleteLeadFromGoogleSheet(id);
+      if (!res.success) {
+        console.warn("Background sheet delete notice:", res.message);
+      }
+    });
 
     return NextResponse.json({ success: true, message: "Lead permanently deleted." });
   } catch (error) {

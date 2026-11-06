@@ -28,7 +28,7 @@ The portfolio showcases **Dispatch** — a high-performance cross-platform bulk 
 
 ### 2. Private Studio CRM (`/crm`)
 - **Pipeline Kanban & Table View**: Lead stages (`New`, `Contacted`, `Proposal`, `Booked`, `Completed`), project need categorization, deal valuation, and currency tracking (USD/INR).
-- **2-Factor Authentication (2FA)**: Master admin password + 6-digit Google Authenticator / Authy TOTP code verification (RFC 6238 timing-safe evaluation).
+- **Dual Security Authentication**: Master admin password or 6-digit Google Authenticator / Authy TOTP PIN verification (RFC 6238 timing-safe evaluation with replay-cache protection).
 - **Smart Contact Actions**: Direct one-tap WhatsApp deep link for phone numbers and pre-filled email composer for client email addresses.
 - **Fail-Safe Bulk Synchronization**: Sync local leads to Google Sheets in one click with data-wipe guards (`allowEmpty` requirement to prevent accidental sheet clearing).
 

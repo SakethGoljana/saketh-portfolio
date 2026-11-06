@@ -1123,10 +1123,10 @@ export default function BookingAndBrief() {
                     {/* Left 6 cols: Service, Budget & Timeline */}
                     <div className="lg:col-span-6 space-y-4">
                       {/* 1. Service Needed */}
-                      <div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10 space-y-2">
-                        <label className="block font-mono text-[11px] font-bold text-[var(--foreground)] uppercase tracking-wider">
+                      <div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10 space-y-2" role="group" aria-labelledby="brief-service-label">
+                        <span id="brief-service-label" className="block font-mono text-[11px] font-bold text-[var(--foreground)] uppercase tracking-wider">
                           1 · What are we building?
-                        </label>
+                        </span>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                           {SERVICES.map((s) => {
                             const active = selectedService === s;
@@ -1134,6 +1134,7 @@ export default function BookingAndBrief() {
                               <button
                                 key={s}
                                 type="button"
+                                aria-pressed={active}
                                 onClick={() => {
                                   setSelectedService(s);
                                   triggerHaptic("tap");
@@ -1152,10 +1153,10 @@ export default function BookingAndBrief() {
                       </div>
 
                       {/* 2. Budget Model */}
-                      <div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10 space-y-2">
-                        <label className="block font-mono text-[11px] font-bold text-[var(--foreground)] uppercase tracking-wider">
+                      <div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10 space-y-2" role="group" aria-labelledby="brief-budget-label">
+                        <span id="brief-budget-label" className="block font-mono text-[11px] font-bold text-[var(--foreground)] uppercase tracking-wider">
                           2 · Pricing Model
-                        </label>
+                        </span>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                           {BUDGET_OPTIONS.map((b) => {
                             const active = selectedBudget === b;
@@ -1163,6 +1164,7 @@ export default function BookingAndBrief() {
                               <button
                                 key={b}
                                 type="button"
+                                aria-pressed={active}
                                 onClick={() => {
                                   setSelectedBudget(b);
                                   triggerHaptic("tap");
@@ -1181,10 +1183,10 @@ export default function BookingAndBrief() {
                       </div>
 
                       {/* 3. Timeline */}
-                      <div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10 space-y-2">
-                        <label className="block font-mono text-[11px] font-bold text-[var(--foreground)] uppercase tracking-wider">
+                      <div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10 space-y-2" role="group" aria-labelledby="brief-timeline-label">
+                        <span id="brief-timeline-label" className="block font-mono text-[11px] font-bold text-[var(--foreground)] uppercase tracking-wider">
                           3 · Target Timeline
-                        </label>
+                        </span>
                         <div className="grid grid-cols-3 gap-1.5">
                           {TIMELINES.map((t) => {
                             const active = selectedTimeline === t;
@@ -1192,6 +1194,7 @@ export default function BookingAndBrief() {
                               <button
                                 key={t}
                                 type="button"
+                                aria-pressed={active}
                                 onClick={() => {
                                   setSelectedTimeline(t);
                                   triggerHaptic("tap");
@@ -1213,10 +1216,11 @@ export default function BookingAndBrief() {
                     {/* Right 6 cols: Project Notes */}
                     <div className="lg:col-span-6 flex flex-col justify-between p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10">
                       <div className="space-y-2 flex-1 flex flex-col">
-                        <label className="block font-mono text-[11px] font-bold text-[var(--foreground)] uppercase tracking-wider">
+                        <label htmlFor="brief-notes" className="block font-mono text-[11px] font-bold text-[var(--foreground)] uppercase tracking-wider">
                           4 · Project Notes &amp; Key Features
                         </label>
                         <textarea
+                          id="brief-notes"
                           rows={6}
                           placeholder="Describe the problem, target users, reference links, key deliverables, or deadlines..."
                           value={briefNotes}

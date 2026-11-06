@@ -329,7 +329,7 @@ const PROJECTS: ProjectData[] = [
         subtitle:
           "Real-Time Revenue, Lead Stages & Active Deal Tracking",
         description:
-          "Private management dashboard closing the end-to-end loop. Categorizes inbound prospects across Discovery, Scoping, Proposal, and Won stages with live KPIs ($28.4K pipeline, 12 active leads, 41% win rate).",
+          "Private management dashboard closing the end-to-end loop. Categorizes inbound prospects across Discovery, Scoping, Proposal, and Won stages with live pipeline totals, currency conversions, and payment ledger controls.",
         type: "crm-dashboard",
         badge: "10 · Deal Operations",
         metric: "Closed-Loop Tracking",

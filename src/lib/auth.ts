@@ -82,7 +82,15 @@ export function verifyPin(pin: string): boolean {
     return false;
   }
 
-  const secret = getAdminTotpSecret();
+  let secret = "";
+  try {
+    secret = getAdminTotpSecret();
+  } catch (err) {
+    console.warn("CRM Auth: ADMIN_TOTP_SECRET not configured or placeholder:", err);
+    return false;
+  }
+  if (!secret) return false;
+
   const isValid = verifyTOTP(cleanPin, secret, 1);
 
   if (isValid) {

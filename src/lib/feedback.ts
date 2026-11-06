@@ -44,6 +44,10 @@ export function getFeedbacks(): FeedbackItem[] {
       inMemoryFeedback = JSON.parse(data);
       return inMemoryFeedback;
     } catch {
+      // If file is corrupted, preserve it as backup to prevent data loss
+      try {
+        fs.renameSync(FEEDBACK_FILE, `${FEEDBACK_FILE}.corrupt-${Date.now()}`);
+      } catch {}
       return inMemoryFeedback;
     }
   }
@@ -61,6 +65,9 @@ export function saveFeedback(
   };
 
   current.unshift(newItem);
+  if (current.length > 1000) {
+    current.length = 1000;
+  }
   inMemoryFeedback = current;
 
   try {

@@ -82,11 +82,18 @@ export default function IPhoneAIChat() {
   const mobileChatScrollRef = useRef<HTMLDivElement>(null);
   const isFirstRender = useRef(true);
 
-  // Listen for mobile floating action bar trigger
+  // Listen for mobile floating action bar trigger & Escape key to close
   useEffect(() => {
     const handleOpenChat = () => setMobileModalOpen(true);
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileModalOpen(false);
+    };
     window.addEventListener("open-ai-chat", handleOpenChat);
-    return () => window.removeEventListener("open-ai-chat", handleOpenChat);
+    window.addEventListener("keydown", handleKey);
+    return () => {
+      window.removeEventListener("open-ai-chat", handleOpenChat);
+      window.removeEventListener("keydown", handleKey);
+    };
   }, []);
 
   // Auto-scroll chat internally to latest message ONLY after user interaction
@@ -599,6 +606,7 @@ export default function IPhoneAIChat() {
           <motion.div
             role="dialog"
             aria-modal="true"
+            aria-label="Snark AI Assistant Chat"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
