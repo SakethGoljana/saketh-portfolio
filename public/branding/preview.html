@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Assembly & Terminal SG Variations</title>
+  <title>Minimalist Transparent S Favicon</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -16,7 +16,7 @@
       align-items: center;
     }
     .container {
-      max-width: 1100px;
+      max-width: 1000px;
       width: 100%;
     }
     header {
@@ -45,12 +45,12 @@
     p {
       color: #94A3B8;
       font-size: 15px;
-      max-width: 650px;
+      max-width: 600px;
       margin: 0 auto;
     }
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
       gap: 28px;
       margin-bottom: 50px;
     }
@@ -58,7 +58,7 @@
       background: #0B1017;
       border: 1px solid #1A2432;
       border-radius: 20px;
-      padding: 28px;
+      padding: 32px 24px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -76,16 +76,32 @@
       color: #64748B;
       letter-spacing: 0.05em;
       text-transform: uppercase;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
     }
-    .logo-large {
-      width: 160px;
-      height: 160px;
+    .checkerboard {
+      width: 150px;
+      height: 150px;
+      border-radius: 16px;
+      background-image: linear-gradient(45deg, #121820 25%, transparent 25%), 
+                        linear-gradient(-45deg, #121820 25%, transparent 25%), 
+                        linear-gradient(45deg, transparent 75%, #121820 75%), 
+                        linear-gradient(-45deg, transparent 75%, #121820 75%);
+      background-size: 16px 16px;
+      background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+      background-color: #0A0D12;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       margin-bottom: 24px;
-      filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.6));
+    }
+    .checkerboard img {
+      width: 110px;
+      height: 110px;
+      filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.6));
     }
     h3 {
-      font-size: 19px;
+      font-size: 18px;
       font-weight: 700;
       margin-bottom: 8px;
       text-align: center;
@@ -96,7 +112,7 @@
       text-align: center;
       line-height: 1.5;
       margin-bottom: 24px;
-      min-height: 48px;
+      min-height: 40px;
     }
     .sizes-row {
       display: flex;
@@ -125,12 +141,13 @@
       border: 1px solid #1A2432;
       border-radius: 20px;
       padding: 30px;
-      margin-bottom: 40px;
+      margin-bottom: 30px;
+      width: 100%;
     }
     .tab-sim-title {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 700;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -139,10 +156,17 @@
       border-radius: 12px;
       overflow: hidden;
       border: 1px solid #334155;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
     }
-    .browser-top {
+    .browser-top-dark {
       background: #141C26;
+      padding: 10px 16px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .browser-top-light {
+      background: #E2E8F0;
       padding: 10px 16px 0;
       display: flex;
       align-items: center;
@@ -163,11 +187,10 @@
     .dot-green { background: #10B981; }
     .tabs-strip {
       display: flex;
-      gap: 4px;
+      gap: 6px;
       flex: 1;
-      overflow-x: auto;
     }
-    .mock-tab {
+    .mock-tab-dark {
       display: flex;
       align-items: center;
       gap: 8px;
@@ -177,22 +200,40 @@
       font-size: 12px;
       font-weight: 500;
       color: #E2E8F0;
-      max-width: 240px;
-      border-top: 1px solid #334155;
+      border-top: 2px solid #10B981;
       border-left: 1px solid #334155;
       border-right: 1px solid #334155;
     }
-    .mock-tab img {
+    .mock-tab-light {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      padding: 8px 16px;
+      border-radius: 8px 8px 0 0;
+      font-size: 12px;
+      font-weight: 600;
+      color: #0F172A;
+      border-top: 2px solid #10B981;
+      border-left: 1px solid #CBD5E1;
+      border-right: 1px solid #CBD5E1;
+    }
+    .mock-tab-dark img, .mock-tab-light img {
       width: 16px;
       height: 16px;
-      border-radius: 3px;
     }
     .browser-body {
-      background: #06090D;
-      padding: 24px;
+      padding: 18px 24px;
       font-family: 'JetBrains Mono', monospace;
       font-size: 13px;
+    }
+    .browser-body-dark {
+      background: #06090D;
       color: #10B981;
+    }
+    .browser-body-light {
+      background: #F8FAFC;
+      color: #059669;
     }
   </style>
 </head>
@@ -200,86 +241,64 @@
 
   <div class="container">
     <header>
-      <div class="badge">Monospace Terminal Archetype</div>
-      <h1>Assembly & Terminal SG Variations</h1>
-      <p>Echoes the <code>saketh_</code> monospace terminal brand of your portfolio. Crisp vector paths with zero font dependencies.</p>
+      <div class="badge">Transparent Minimalism</div>
+      <h1>Lettermark S Favicon (No Background)</h1>
+      <p>100% transparent background. Floats seamlessly directly on your browser's native tab bar.</p>
     </header>
 
     <div class="grid">
 
-      <!-- 4A. Classic Window Shell -->
+      <!-- 3A. Smooth Geometric S Curve -->
       <div class="card">
-        <div class="card-tag">Variation 4A · Classic Terminal Window</div>
-        <img class="logo-large" src="/branding/sg-terminal-classic.svg" alt="Terminal Classic">
-        <h3>The Classic Window Shell</h3>
-        <p class="desc">Includes terminal title bar with traffic lights, prompt chevron &gt;, vector SG, glowing cursor block, and assembly opcode.</p>
+        <div class="card-tag">Option 3A · Smooth Dynamic Curve</div>
+        <div class="checkerboard">
+          <img src="/branding/fav-letter-s-transparent.svg" alt="Smooth S">
+        </div>
+        <h3>The Smooth Geometric S</h3>
+        <p class="desc">A continuous, high-speed aerodynamic curve in electric emerald gradient. Pure, fluid minimalism.</p>
         <div class="sizes-row">
           <div class="size-item">
-            <img src="/branding/sg-terminal-classic.svg" style="width: 16px; height: 16px;">
+            <img src="/branding/fav-letter-s-transparent.svg" style="width: 16px; height: 16px;">
             <span class="size-label">16px</span>
           </div>
           <div class="size-item">
-            <img src="/branding/sg-terminal-classic.svg" style="width: 24px; height: 24px;">
+            <img src="/branding/fav-letter-s-transparent.svg" style="width: 24px; height: 24px;">
             <span class="size-label">24px</span>
           </div>
           <div class="size-item">
-            <img src="/branding/sg-terminal-classic.svg" style="width: 32px; height: 32px;">
+            <img src="/branding/fav-letter-s-transparent.svg" style="width: 32px; height: 32px;">
             <span class="size-label">32px</span>
           </div>
           <div class="size-item">
-            <img src="/branding/sg-terminal-classic.svg" style="width: 48px; height: 48px;">
+            <img src="/branding/fav-letter-s-transparent.svg" style="width: 48px; height: 48px;">
             <span class="size-label">48px</span>
           </div>
         </div>
       </div>
 
-      <!-- 4B. Ultra-Legible Favicon Shell -->
+      <!-- 3B. Precision Blade S -->
       <div class="card">
-        <div class="card-tag">Variation 4B · Favicon Max Contrast (Recommended)</div>
-        <img class="logo-large" src="/branding/sg-terminal-compact.svg" alt="Terminal Compact">
-        <h3>The High-Contrast Prompt</h3>
-        <p class="desc">Maximum size glyphs &gt; S G █. Strips non-essential chrome so "S G" and the radiant cursor pop with 100% clarity in browser tabs.</p>
-        <div class="sizes-row">
-          <div class="size-item">
-            <img src="/branding/sg-terminal-compact.svg" style="width: 16px; height: 16px;">
-            <span class="size-label">16px</span>
-          </div>
-          <div class="size-item">
-            <img src="/branding/sg-terminal-compact.svg" style="width: 24px; height: 24px;">
-            <span class="size-label">24px</span>
-          </div>
-          <div class="size-item">
-            <img src="/branding/sg-terminal-compact.svg" style="width: 32px; height: 32px;">
-            <span class="size-label">32px</span>
-          </div>
-          <div class="size-item">
-            <img src="/branding/sg-terminal-compact.svg" style="width: 48px; height: 48px;">
-            <span class="size-label">48px</span>
-          </div>
+        <div class="card-tag">Option 3B · Modern Tech Blade</div>
+        <div class="checkerboard">
+          <img src="/branding/fav-letter-s-blade-transparent.svg" alt="Blade S">
         </div>
-      </div>
-
-      <!-- 4C. Code Brackets -->
-      <div class="card">
-        <div class="card-tag">Variation 4C · Component Brackets</div>
-        <img class="logo-large" src="/branding/sg-terminal-brackets.svg" alt="Terminal Brackets">
-        <h3>The Component &lt;SG /&gt;</h3>
-        <p class="desc">Code bracket framing with titanium white S, electric emerald G, and an illuminated closing syntax slash.</p>
+        <h3>The Precision Tech Blade S</h3>
+        <p class="desc">Supabase / Stripe style solid carved geometry with diagonal cuts. Bold, architectural, razor-sharp.</p>
         <div class="sizes-row">
           <div class="size-item">
-            <img src="/branding/sg-terminal-brackets.svg" style="width: 16px; height: 16px;">
+            <img src="/branding/fav-letter-s-blade-transparent.svg" style="width: 16px; height: 16px;">
             <span class="size-label">16px</span>
           </div>
           <div class="size-item">
-            <img src="/branding/sg-terminal-brackets.svg" style="width: 24px; height: 24px;">
+            <img src="/branding/fav-letter-s-blade-transparent.svg" style="width: 24px; height: 24px;">
             <span class="size-label">24px</span>
           </div>
           <div class="size-item">
-            <img src="/branding/sg-terminal-brackets.svg" style="width: 32px; height: 32px;">
+            <img src="/branding/fav-letter-s-blade-transparent.svg" style="width: 32px; height: 32px;">
             <span class="size-label">32px</span>
           </div>
           <div class="size-item">
-            <img src="/branding/sg-terminal-brackets.svg" style="width: 48px; height: 48px;">
+            <img src="/branding/fav-letter-s-blade-transparent.svg" style="width: 48px; height: 48px;">
             <span class="size-label">48px</span>
           </div>
         </div>
@@ -287,36 +306,60 @@
 
     </div>
 
-    <!-- Browser Tab Simulation -->
+    <!-- Tab Simulation: Dark Mode -->
     <div class="tab-sim-section">
       <div class="tab-sim-title">
-        <span>🌐 Real Browser Tab Bar Simulation (16×16 px)</span>
+        <span>🌙 Dark Mode Browser Tab (Real 16×16 px)</span>
       </div>
-      
       <div class="browser-mockup">
-        <div class="browser-top">
+        <div class="browser-top-dark">
           <div class="window-dots">
             <div class="dot dot-red"></div>
             <div class="dot dot-yellow"></div>
             <div class="dot dot-green"></div>
           </div>
           <div class="tabs-strip">
-            <div class="mock-tab">
-              <img src="/branding/sg-terminal-classic.svg" alt="Classic Tab">
-              <span>Saketh Goljana · Classic 4A</span>
+            <div class="mock-tab-dark">
+              <img src="/branding/fav-letter-s-transparent.svg" alt="Tab Dark 3A">
+              <span>Saketh Goljana · Option 3A (Smooth)</span>
             </div>
-            <div class="mock-tab" style="border-top: 2px solid #10B981; background: #0F172A;">
-              <img src="/branding/sg-terminal-compact.svg" alt="Compact Tab">
-              <span style="color: #7CF4D4; font-weight: 600;">Saketh Goljana · 4B (Max Contrast)</span>
-            </div>
-            <div class="mock-tab">
-              <img src="/branding/sg-terminal-brackets.svg" alt="Brackets Tab">
-              <span>Saketh Goljana · Brackets 4C</span>
+            <div class="mock-tab-dark" style="border-top-color: #64748B; background: #0E141D;">
+              <img src="/branding/fav-letter-s-blade-transparent.svg" alt="Tab Dark 3B">
+              <span style="color: #94A3B8;">Option 3B (Blade)</span>
             </div>
           </div>
         </div>
-        <div class="browser-body">
-          &gt; Notice how 4B gives immediate, effortless readability at 16px while keeping the high-tech terminal vibe!
+        <div class="browser-body browser-body-dark">
+          &gt; Seamless transparency. The emerald S blends directly onto the dark browser tab bar.
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab Simulation: Light Mode -->
+    <div class="tab-sim-section">
+      <div class="tab-sim-title">
+        <span>☀️ Light Mode Browser Tab (Real 16×16 px)</span>
+      </div>
+      <div class="browser-mockup">
+        <div class="browser-top-light">
+          <div class="window-dots">
+            <div class="dot dot-red"></div>
+            <div class="dot dot-yellow"></div>
+            <div class="dot dot-green"></div>
+          </div>
+          <div class="tabs-strip">
+            <div class="mock-tab-light">
+              <img src="/branding/fav-letter-s-transparent.svg" alt="Tab Light 3A">
+              <span>Saketh Goljana · Option 3A (Smooth)</span>
+            </div>
+            <div class="mock-tab-light" style="border-top-color: #94A3B8; background: #F1F5F9;">
+              <img src="/branding/fav-letter-s-blade-transparent.svg" alt="Tab Light 3B">
+              <span style="color: #64748B;">Option 3B (Blade)</span>
+            </div>
+          </div>
+        </div>
+        <div class="browser-body browser-body-light">
+          &gt; Rich emerald-to-mint gradient maintains crisp contrast even against white / light gray chrome tabs.
         </div>
       </div>
     </div>
