@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <radialGradient id="hexBg" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#11161D"/>
+      <stop offset="100%" stop-color="#050709"/>
+    </radialGradient>
+
+    <!-- Emerald Facet -->
+    <linearGradient id="emeraldFacet" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981"/>
+      <stop offset="100%" stop-color="#047857"/>
+    </linearGradient>
+
+    <!-- Cyan / Mint Top Facet -->
+    <linearGradient id="mintFacet" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#34D399"/>
+      <stop offset="100%" stop-color="#6EE7B7"/>
+    </linearGradient>
+
+    <!-- Titanium Steel Facet -->
+    <linearGradient id="steelFacet" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F1F5F9"/>
+      <stop offset="100%" stop-color="#64748B"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Squircle Base with Micro-Glow -->
+  <rect x="24" y="24" width="464" height="464" rx="112" fill="url(#hexBg)" stroke="#222B36" stroke-width="4"/>
+  <rect x="24" y="24" width="464" height="464" rx="112" fill="none" stroke="#10B981" stroke-width="1.5" stroke-opacity="0.3"/>
+
+  <!-- Isometric Hexagon Monogram Construction -->
+  <g transform="translate(256, 256)">
+    <!-- Central Hex Prism Facet Background -->
+    <polygon points="0,-150 130,-75 130,75 0,150 -130,75 -130,-75" 
+             fill="#0B0E14" 
+             stroke="#1F2937" 
+             stroke-width="3"/>
+
+    <!-- 'S' Path carved on the Left Isometric Plane -->
+    <path d="M 0 -130 L -90 -78 L -90 -30 L -25 8 L -90 45 L -90 95 L 0 145" 
+          fill="none" 
+          stroke="url(#emeraldFacet)" 
+          stroke-width="26" 
+          stroke-linecap="round" 
+          stroke-linejoin="round"/>
+
+    <!-- 'G' Path carved on the Right Isometric Plane -->
+    <path d="M 0 -130 L 90 -78 L 90 75 L 0 130 L -30 110" 
+          fill="none" 
+          stroke="url(#steelFacet)" 
+          stroke-width="26" 
+          stroke-linecap="round" 
+          stroke-linejoin="round"/>
+
+    <!-- G Inward Isometric Shelf -->
+    <path d="M 90 15 L 20 -25 L 20 25" 
+          fill="none" 
+          stroke="url(#mintFacet)" 
+          stroke-width="24" 
+          stroke-linecap="round" 
+          stroke-linejoin="round"/>
+
+    <!-- Center Connecting Core Spark -->
+    <circle cx="0" cy="0" r="10" fill="#34D399"/>
+  </g>
+</svg>

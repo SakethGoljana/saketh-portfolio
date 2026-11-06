@@ -40,6 +40,13 @@ export const metadata: Metadata = {
     description: "Building production mobile apps, modern web platforms, and intelligent automation systems.",
     type: "website",
   },
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
 };
 
 const THEME_SCRIPT = `
