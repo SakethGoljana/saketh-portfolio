@@ -4,6 +4,8 @@ import "./globals.css";
 import FeedbackWidget from "@/components/FeedbackWidget";
 import CommandPalette from "@/components/CommandPalette";
 import JsonLd from "@/components/JsonLd";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
+import CookieConsent from "@/components/CookieConsent";
 
 // Plus Jakarta Sans - Modern, clean, geometric sans designed for premium digital products
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -91,6 +93,9 @@ export const metadata: Metadata = {
     shortcut: "/icon.svg",
     apple: "/apple-icon.svg",
   },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+  },
 };
 
 const THEME_SCRIPT = `
@@ -124,11 +129,13 @@ export default function RootLayout({
       className={`${plusJakartaSans.variable} ${jetbrainsMono.variable} scroll-smooth`}
     >
       <body className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-sans antialiased selection:bg-[var(--foreground)] selection:text-[var(--background)] flex flex-col transition-colors duration-200">
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
         <JsonLd />
         {children}
         <CommandPalette />
         <FeedbackWidget />
+        <CookieConsent />
       </body>
     </html>
   );
