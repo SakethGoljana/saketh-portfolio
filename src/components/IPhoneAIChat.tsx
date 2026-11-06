@@ -140,7 +140,7 @@ export default function IPhoneAIChat() {
       const data = await res.json();
       const reply =
         data?.reply ||
-        "I'm Snark. Ping Saketh on WhatsApp at +91 93902 46687 to chat about projects!";
+        "I'm Snark. Ping Saketh on WhatsApp at +91 90594 78739 to chat about projects!";
 
       const hasContact =
         data?.hasContactAction ||
@@ -175,7 +175,7 @@ export default function IPhoneAIChat() {
         {
           id: `ai-${Date.now()}`,
           role: "assistant",
-          text: "My circuits took a quick break. Ping Saketh directly on WhatsApp at +91 93902 46687!",
+          text: "My circuits took a quick break. Ping Saketh directly on WhatsApp at +91 90594 78739!",
           time: "Now",
           hasContactAction: true,
         },
@@ -360,12 +360,12 @@ export default function IPhoneAIChat() {
                             <ArrowDown size={11} strokeWidth={2.6} />
                           </button>
                           <a
-                            href="https://wa.me/919390246687"
+                            href="https://wa.me/919059478739"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/25 text-emerald-700 dark:text-emerald-400 font-mono text-[10px] font-semibold transition-all"
                           >
-                            <span>WhatsApp Direct (+91 93902 46687)</span>
+                            <span>WhatsApp Direct (+91 90594 78739)</span>
                             <ArrowUpRight size={11} />
                           </a>
                         </div>

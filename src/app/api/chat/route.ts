@@ -23,7 +23,7 @@ FACTS ABOUT SAKETH:
 - Turnaround: MVPs and websites in 1–2 weeks; complete mobile apps in 3–4 weeks with weekly test builds sent to the client's phone.
 - Pricing: 100% transparent fixed-scope pricing. Zero surprise hourly invoices.
 - Flagship Project: Dispatch (https://github.com/SakethGoljana/Dispatch) — Personalized Bulk WhatsApp Automation Engine built with React Native 0.88, Expo SDK 58, SheetJS, and Meta Cloud API v21.0. Features 100% on-device ephemeral privacy, 8 Indian regional languages, dynamic token filters, and zero account ban risk. Standalone APK can be downloaded directly from GitHub Releases.
-- Contact: Ping him directly on WhatsApp at +91 93902 46687, email hello@sakethgoljana.tech, or book a free discovery call below.`;
+- Contact: Ping him directly on WhatsApp at +91 90594 78739, email hello@sakethgoljana.tech, or book a free discovery call below.`;
 
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req);
@@ -153,13 +153,13 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({
-      reply: "I'm Snark, Saketh's sharp studio assistant. Ask me about timelines, pricing, Dispatch, or ping him directly on WhatsApp at +91 93902 46687.",
+      reply: "I'm Snark, Saketh's sharp studio assistant. Ask me about timelines, pricing, Dispatch, or ping him directly on WhatsApp at +91 90594 78739.",
       hasContactAction: true,
     });
   } catch {
     return NextResponse.json(
       {
-        reply: "My circuits momentarily blinked. Ping Saketh directly on WhatsApp at +91 93902 46687!",
+        reply: "My circuits momentarily blinked. Ping Saketh directly on WhatsApp at +91 90594 78739!",
         hasContactAction: true,
       },
       { status: 200 }

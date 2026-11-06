@@ -185,7 +185,7 @@ export async function sendLeadNotifications(lead: Lead): Promise<{
 
           <p style="font-size: 12px; color: #71717A; line-height: 1.5; margin: 0; border-top: 1px solid #1E1E28; padding-top: 16px;">
             Need to share urgent details or reschedule? Reply directly to this email or reach out on WhatsApp at 
-            <a href="https://wa.me/919390246687" style="color: #7CF4D4; text-decoration: none;">+91 93902 46687</a>.
+            <a href="https://wa.me/919059478739" style="color: #7CF4D4; text-decoration: none;">+91 90594 78739</a>.
           </p>
         </div>
       `;

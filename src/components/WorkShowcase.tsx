@@ -461,7 +461,7 @@ function SnapshotScreen({
           {[
             {
               name: "Sohan Aditya",
-              phone: "+91 93902 46687",
+              phone: "+91 90594 78739",
               balance: "₹12,500",
               bus: "MAGIC-1",
               status: "Overdue",

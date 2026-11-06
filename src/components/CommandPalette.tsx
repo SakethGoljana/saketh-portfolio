@@ -224,12 +224,12 @@ export default function CommandPalette() {
       },
       {
         id: "action-whatsapp",
-        title: "Direct WhatsApp Message (+91 93902 46687)",
+        title: "Direct WhatsApp Message (+91 90594 78739)",
         subtitle: "Instant chat & rapid response with Saketh",
         category: "Action",
         icon: MessageCircle,
         action: () => {
-          window.open("https://wa.me/919390246687", "_blank", "noopener,noreferrer");
+          window.open("https://wa.me/919059478739", "_blank", "noopener,noreferrer");
           setIsOpen(false);
         },
       },

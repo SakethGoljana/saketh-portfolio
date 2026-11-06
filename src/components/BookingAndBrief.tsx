@@ -404,12 +404,12 @@ export default function BookingAndBrief() {
                 <span className="w-1.5 h-1.5 rounded-full bg-[#25D366] animate-pulse" />
               </div>
               <div className="text-xs text-[var(--subtext)] font-mono mt-0.5">
-                Chat directly with Saketh (+91 93902 46687) · Quick reply
+                Chat directly with Saketh (+91 90594 78739) · Quick reply
               </div>
             </div>
           </div>
           <a
-            href="https://wa.me/919390246687"
+            href="https://wa.me/919059478739"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full bg-[#25D366] hover:bg-[#20ba59] text-black font-semibold font-mono text-xs hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xs cursor-pointer min-h-[38px] sm:min-h-[44px]"
