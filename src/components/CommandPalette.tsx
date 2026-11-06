@@ -24,6 +24,7 @@ import {
   Moon,
   Laptop,
 } from "lucide-react";
+import { GithubIcon, LinkedinIcon } from "@/components/SocialIcons";
 
 interface PaletteCommand {
   id: string;
@@ -82,7 +83,7 @@ export default function CommandPalette() {
 
   const copyEmail = () => {
     if (typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText("sakethgoljana098@gmail.com");
+      navigator.clipboard.writeText("hello@sakethgoljana.tech");
     }
     setCopiedNotice(true);
     setTimeout(() => {
@@ -170,10 +171,43 @@ export default function CommandPalette() {
         icon: Smartphone,
         action: () => {
           window.open(
-            "https://expo.dev/artifacts/eas/ZMYV1bXPcouSwRPR97MMm_IZiFi6MjiJtYJzUBLmnk8.apk",
+            "https://github.com/SakethGoljana/Dispatch/releases/latest/download/dispatch-v1.0.0.apk",
             "_blank",
             "noopener,noreferrer"
           );
+          setIsOpen(false);
+        },
+      },
+      {
+        id: "action-dispatch-github",
+        title: "View Dispatch GitHub Repository",
+        subtitle: "https://github.com/SakethGoljana/Dispatch",
+        category: "Action",
+        icon: GithubIcon,
+        action: () => {
+          window.open("https://github.com/SakethGoljana/Dispatch", "_blank", "noopener,noreferrer");
+          setIsOpen(false);
+        },
+      },
+      {
+        id: "action-github-profile",
+        title: "Saketh's GitHub Profile",
+        subtitle: "https://github.com/SakethGoljana",
+        category: "Action",
+        icon: GithubIcon,
+        action: () => {
+          window.open("https://github.com/SakethGoljana", "_blank", "noopener,noreferrer");
+          setIsOpen(false);
+        },
+      },
+      {
+        id: "action-linkedin-profile",
+        title: "Connect on LinkedIn",
+        subtitle: "https://www.linkedin.com/in/saketh-goljana/",
+        category: "Action",
+        icon: LinkedinIcon,
+        action: () => {
+          window.open("https://www.linkedin.com/in/saketh-goljana/", "_blank", "noopener,noreferrer");
           setIsOpen(false);
         },
       },
@@ -201,8 +235,8 @@ export default function CommandPalette() {
       },
       {
         id: "action-email",
-        title: "Copy Email: sakethgoljana098@gmail.com",
-        subtitle: "Direct inbox reachout",
+        title: "Copy Email: hello@sakethgoljana.tech",
+        subtitle: "Direct custom inbox reachout",
         category: "Action",
         icon: Copy,
         action: copyEmail,

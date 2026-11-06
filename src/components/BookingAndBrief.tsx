@@ -94,7 +94,7 @@ export default function BookingAndBrief() {
 
   const handleCopyEmail = () => {
     if (typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText("sakethgoljana098@gmail.com");
+      navigator.clipboard.writeText("hello@sakethgoljana.tech");
     }
     setCopiedEmail(true);
     setTimeout(() => setCopiedEmail(false), 2000);
@@ -1254,7 +1254,7 @@ export default function BookingAndBrief() {
         <div className="mt-8 pt-6 border-t border-[var(--border)] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-[var(--subtext)]">
           <div className="flex items-center gap-2">
             <span>Direct Email:</span>
-            <span className="font-bold text-[var(--foreground)]">sakethgoljana098@gmail.com</span>
+            <span className="font-bold text-[var(--foreground)]">hello@sakethgoljana.tech</span>
             <button
               type="button"
               onClick={handleCopyEmail}

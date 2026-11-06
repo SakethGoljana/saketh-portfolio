@@ -25,7 +25,7 @@ export function isGoogleSheetConfigured(): boolean {
  * Neutralize Spreadsheet / Formula Injection (CWE-1236).
  * Prepend single quote if string begins with formula triggers: =, +, -, @, \t, \r
  */
-export function sanitizeSpreadsheetCell(val: any): any {
+export function sanitizeSpreadsheetCell<T>(val: T): T | string {
   if (typeof val === "string") {
     const trimmed = val.trim();
     if (/^[=+\-@\t\r]/.test(trimmed)) {
@@ -105,15 +105,17 @@ export async function syncLeadToGoogleSheet(lead: Lead): Promise<SheetSyncResult
       return {
         success: false,
         configured: true,
-        message: body?.message || `Google Sheets webhook returned HTTP ${res.status}`,
+        message: body?.message || body?.error || `Google Sheets webhook returned HTTP ${res.status}`,
       };
     }
-  } catch (err: any) {
-    console.warn("Failed to sync lead to Google Sheets (non-blocking):", err?.message || err);
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    const errorName = err instanceof Error ? err.name : "";
+    console.warn("Failed to sync lead to Google Sheets (non-blocking):", errorMsg);
     return {
       success: false,
       configured: true,
-      message: err?.name === "TimeoutError" ? "Webhook timed out" : "Network error during sync",
+      message: errorName === "TimeoutError" ? "Webhook timed out" : "Network error during sync",
     };
   }
 }
@@ -160,15 +162,17 @@ export async function syncAllLeadsToGoogleSheet(leads: Lead[], allowEmpty = fals
       return {
         success: false,
         configured: true,
-        message: body?.message || `Google Sheets webhook returned HTTP ${res.status}`,
+        message: body?.message || body?.error || `Google Sheets webhook returned HTTP ${res.status}`,
       };
     }
-  } catch (err: any) {
-    console.error("Bulk sync to Google Sheets error:", err);
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    const errorName = err instanceof Error ? err.name : "";
+    console.error("Bulk sync to Google Sheets error:", errorMsg);
     return {
       success: false,
       configured: true,
-      message: err?.name === "TimeoutError" ? "Bulk sync timed out" : "Network error during bulk sync",
+      message: errorName === "TimeoutError" ? "Bulk sync timed out" : "Network error during bulk sync",
     };
   }
 }

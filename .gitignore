@@ -45,3 +45,7 @@ next-env.d.ts
 /data/
 data/*.json
 
+# local binary APK downloads
+public/downloads/
+*.apk
+

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ArrowUp, MessageCircle, Mail } from "lucide-react";
+import { GithubIcon, LinkedinIcon } from "@/components/SocialIcons";
 
 export default function Footer() {
   const currentYear = 2026;
@@ -65,6 +66,30 @@ export default function Footer() {
 
           {/* Social Icons Dock - Uniform Glassmorphism */}
           <div className="flex items-center gap-2.5 text-[var(--subtext)]">
+            {/* GitHub */}
+            <a
+              href="https://github.com/SakethGoljana"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-11 h-11 rounded-full bg-slate-100/80 dark:bg-white/5 backdrop-blur-md border border-slate-200/80 dark:border-white/10 hover:border-emerald-500/50 text-[var(--foreground)] hover:text-emerald-500 transition-all cursor-pointer flex items-center justify-center touch-manipulation active:scale-95 shadow-2xs"
+              aria-label="GitHub Profile"
+              title="Saketh on GitHub"
+            >
+              <GithubIcon size={18} />
+            </a>
+
+            {/* LinkedIn */}
+            <a
+              href="https://www.linkedin.com/in/saketh-goljana/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-11 h-11 rounded-full bg-slate-100/80 dark:bg-white/5 backdrop-blur-md border border-slate-200/80 dark:border-white/10 hover:border-emerald-500/50 text-[var(--foreground)] hover:text-[#0A66C2] transition-all cursor-pointer flex items-center justify-center touch-manipulation active:scale-95 shadow-2xs"
+              aria-label="LinkedIn Profile"
+              title="Connect on LinkedIn"
+            >
+              <LinkedinIcon size={18} />
+            </a>
+
             {/* WhatsApp */}
             <a
               href="https://wa.me/919390246687"
@@ -79,7 +104,7 @@ export default function Footer() {
 
             {/* Email */}
             <a
-              href="mailto:sakethgoljana098@gmail.com"
+              href="mailto:hello@sakethgoljana.tech"
               className="w-11 h-11 rounded-full bg-slate-100/80 dark:bg-white/5 backdrop-blur-md border border-slate-200/80 dark:border-white/10 hover:border-emerald-500/50 text-[var(--foreground)] hover:text-emerald-600 dark:hover:text-emerald-400 transition-all cursor-pointer flex items-center justify-center touch-manipulation active:scale-95 shadow-2xs"
               aria-label="Email"
               title="Send an Email"

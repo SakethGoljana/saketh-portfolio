@@ -337,7 +337,7 @@ export default function IPhoneAIChat() {
                       {isAssistant && m.hasApkAction && (
                         <div className="mt-2.5 pt-2 border-t border-black/8 dark:border-white/10 flex flex-col gap-1.5 animate-in fade-in duration-200">
                           <a
-                            href="https://expo.dev/artifacts/eas/ZMYV1bXPcouSwRPR97MMm_IZiFi6MjiJtYJzUBLmnk8.apk"
+                            href="https://github.com/SakethGoljana/Dispatch/releases/latest/download/dispatch-v1.0.0.apk"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold font-mono text-[10px] shadow-xs hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
@@ -536,7 +536,7 @@ export default function IPhoneAIChat() {
                       {isAssistant && m.hasApkAction && (
                         <div className="mt-2.5 pt-2 border-t border-[var(--border)] flex flex-col gap-1.5">
                           <a
-                            href="https://expo.dev/artifacts/eas/ZMYV1bXPcouSwRPR97MMm_IZiFi6MjiJtYJzUBLmnk8.apk"
+                            href="https://github.com/SakethGoljana/Dispatch/releases/latest/download/dispatch-v1.0.0.apk"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold font-mono text-[11px] shadow-xs cursor-pointer"

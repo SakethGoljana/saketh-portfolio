@@ -510,7 +510,9 @@ export default function CrmStudio() {
 
   // Clean WhatsApp URL
   const whatsappUrl = useMemo(() => {
-    if (!selectedLead) return "https://wa.me/";
+    if (!selectedLead) return null;
+    const isEmail = selectedLead.contact.includes("@");
+    if (isEmail) return null;
     const cleanNumber = selectedLead.contact.replace(/[^\d+]/g, "");
     const message = encodeURIComponent(
       `Hi ${selectedLead.name.split("·")[0].trim()}, thanks for reaching out through my portfolio regarding your ${selectedLead.need} project!`
@@ -943,22 +945,34 @@ export default function CrmStudio() {
 
                 {/* Direct Action Links */}
                 <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-[#1E1E2A]">
-                  <a
-                    href={whatsappUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#1FAF38] hover:bg-[#25C743] text-[#0B0B0F] font-bold text-xs font-mono transition-all cursor-pointer"
-                  >
-                    <MessageCircle size={14} />
-                    <span>Reply on WhatsApp</span>
-                  </a>
-                  <a
-                    href={`mailto:${selectedLead.contact}`}
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#1E1E2A] hover:bg-[#2A2A3A] border border-[#2E2E3E] text-xs font-mono text-[#F4F4F0] transition-all cursor-pointer"
-                  >
-                    <Mail size={14} />
-                    <span>Send Email</span>
-                  </a>
+                  {whatsappUrl ? (
+                    <a
+                      href={whatsappUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#1FAF38] hover:bg-[#25C743] text-[#0B0B0F] font-bold text-xs font-mono transition-all cursor-pointer"
+                    >
+                      <MessageCircle size={14} />
+                      <span>Reply on WhatsApp</span>
+                    </a>
+                  ) : null}
+                  {selectedLead.contact.includes("@") ? (
+                    <a
+                      href={`mailto:${selectedLead.contact}?subject=${encodeURIComponent(`Regarding your ${selectedLead.need} inquiry`)}`}
+                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs font-mono transition-all cursor-pointer"
+                    >
+                      <Mail size={14} />
+                      <span>Send Email to Client</span>
+                    </a>
+                  ) : (
+                    <a
+                      href={`mailto:${selectedLead.contact}`}
+                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#1E1E2A] hover:bg-[#2A2A3A] border border-[#2E2E3E] text-xs font-mono text-[#F4F4F0] transition-all cursor-pointer"
+                    >
+                      <Mail size={14} />
+                      <span>Send Email</span>
+                    </a>
+                  )}
                   {selectedLead.day && selectedLead.slot && (
                     <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#09090D] border border-[#22222E] text-xs font-mono text-[var(--accent)]">
                       <Calendar size={13} />

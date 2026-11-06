@@ -2,6 +2,7 @@ import { NextRequest, NextResponse, after } from "next/server";
 import { getLeads, saveLead, updateLead, deleteLead, type Lead } from "@/lib/leads";
 import { isAuthenticatedRequest } from "@/lib/auth";
 import { syncLeadToGoogleSheet } from "@/lib/googleSheets";
+import { sendLeadNotifications } from "@/lib/notifications";
 import { getClientIp, isRateLimited } from "@/lib/rateLimit";
 
 const MAX_LEADS_PER_WINDOW = 10;
@@ -84,10 +85,13 @@ export async function POST(req: NextRequest) {
       notes: notes ? String(notes).trim().slice(0, 2000) : "",
     });
 
-    // Fail-proof async sync to Google Sheets in background via after()
+    // Fail-proof async sync to Google Sheets & Email Notifications via after()
     after(() => {
       syncLeadToGoogleSheet(lead).catch((err) => {
         console.warn("Background sheet sync notice:", err);
+      });
+      sendLeadNotifications(lead).catch((err) => {
+        console.warn("Background email notification notice:", err);
       });
     });
 

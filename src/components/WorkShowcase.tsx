@@ -14,6 +14,7 @@ import {
   ChevronLeft,
   Plus,
 } from "lucide-react";
+import { GithubIcon } from "@/components/SocialIcons";
 import { triggerHaptic } from "@/utils/haptics";
 
 /* ──────────────────────────────────────────────────────────────────────── */
@@ -48,6 +49,7 @@ interface ProjectData {
   description: string;
   accent: string;
   apkUrl?: string;
+  githubUrl?: string;
   easUrl?: string;
   pills: string[];
   metrics: { label: string; value: string }[];
@@ -60,27 +62,30 @@ const PROJECTS: ProjectData[] = [
     id: "dispatch",
     number: "01",
     title: "Dispatch",
-    subtitle: "WhatsApp Notice Engine",
+    subtitle: "Bulk WhatsApp Automation Engine",
     category: "MOBILE APPLICATION · ANDROID & IOS",
     categoryShort: "APPS",
     tagline:
-      "Send personalized WhatsApp notices to parents directly from Excel spreadsheets in 1 tap.",
+      "Turn raw Excel, CSV, and Google Sheets into personalized WhatsApp messages with 1-tap dispatch and zero ban risk.",
     description:
-      "Small businesses, schools, and clinics waste hours manually copying fee and event notices to parents, or get their phone numbers permanently banned using spam bots. Dispatch lets you import your Excel file directly on your phone, automatically personalizes messages in 8 Indian languages, and sends them safely in 1 tap without any cloud upload or ban risk.",
+      "Small businesses, schools, and clinics waste hours manually copying fee, attendance, and dispatch notices to hundreds of contacts, or get their phone numbers permanently banned using third-party spam bots. Dispatch parses spreadsheets 100% locally in device RAM (zero-knowledge ephemeral state), compiles dynamic token templates in 8 Indian languages, and sends messages via official 1-tap WhatsApp deep links or Meta Cloud API v21.0.",
     accent: "#059669",
+    githubUrl: "https://github.com/SakethGoljana/Dispatch",
     apkUrl:
-      "https://expo.dev/artifacts/eas/ZMYV1bXPcouSwRPR97MMm_IZiFi6MjiJtYJzUBLmnk8.apk",
+      "https://github.com/SakethGoljana/Dispatch/releases/latest/download/dispatch-v1.0.0.apk",
     easUrl: "https://expo.dev/accounts/saketh3773/projects/dispatch",
     pills: [
-      "Excel & Sheets Import",
-      "100% Private (No Cloud)",
-      "8 Indian Languages",
-      "Zero Ban Risk",
+      "React Native 0.88",
+      "Expo SDK 58",
+      "Meta Cloud API",
+      "SheetJS Parsing",
+      "OTA Updates",
+      "Zero-Knowledge",
     ],
     metrics: [
-      { label: "Data Privacy", value: "100% On-Device" },
-      { label: "Languages", value: "8 Regional Presets" },
-      { label: "Account Safety", value: "Zero Spam Risk" },
+      { label: "Data Architecture", value: "100% Ephemeral RAM" },
+      { label: "Meta Cloud API", value: "Graph API v21.0" },
+      { label: "Regional Presets", value: "8 Languages" },
     ],
     snapshots: [
       {
@@ -1450,6 +1455,17 @@ export default function WorkShowcase() {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2.5">
+                  {activeModalProject.githubUrl && (
+                    <a
+                      href={activeModalProject.githubUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-white font-bold font-mono text-xs transition-all shadow-sm"
+                    >
+                      <GithubIcon size={14} />
+                      <span>View GitHub</span>
+                    </a>
+                  )}
                   {activeModalProject.apkUrl && (
                     <a
                       href={activeModalProject.apkUrl}
