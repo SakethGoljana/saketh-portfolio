@@ -150,7 +150,7 @@ To use Google Sheets as your production cloud database:
 
 ## 🌐 Production Deployment (Vercel)
 
-1. Push this repository to your GitHub account (`https://github.com/SakethGoljana/Portfolio`).
+1. Push this repository to your GitHub account (`https://github.com/SakethGoljana/saketh-portfolio`).
 2. Import the repository in [Vercel](https://vercel.com).
 3. Add the environment variables from your `.env.local` into Vercel Project Settings.
 4. Add your custom domain `sakethgoljana.tech` under **Settings > Domains**.
