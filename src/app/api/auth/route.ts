@@ -27,11 +27,8 @@ export async function POST(req: NextRequest) {
   const ip = getClientIp(req);
   const rateLimitKey = `auth:${ip}`;
 
-  // Check per-IP and global distributed brute-force rate limits
-  if (
-    isRateLimited(rateLimitKey, MAX_AUTH_ATTEMPTS, AUTH_WINDOW_MS) ||
-    isRateLimited("auth:global:lockout", 30, AUTH_WINDOW_MS)
-  ) {
+  // Check brute-force rate limit per IP
+  if (isRateLimited(rateLimitKey, MAX_AUTH_ATTEMPTS, AUTH_WINDOW_MS)) {
     return NextResponse.json(
       {
         success: false,

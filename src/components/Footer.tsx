@@ -5,7 +5,7 @@ import { ArrowUp, MessageCircle, Mail } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "@/components/SocialIcons";
 
 export default function Footer() {
-  const currentYear = 2026;
+  const currentYear = new Date().getFullYear();
 
   return (
     <footer
@@ -127,7 +127,7 @@ export default function Footer() {
 
       {/* Bottom Metadata */}
       <div className="max-w-6xl mx-auto pt-6 border-t border-[var(--border)] flex flex-col sm:flex-row items-center justify-between text-xs font-mono text-[var(--subtext)] gap-3">
-        <span>© {currentYear} Saketh Goljana. All rights reserved.</span>
+        <span suppressHydrationWarning>© {currentYear} Saketh Goljana. All rights reserved.</span>
         <div className="flex items-center gap-3">
           <span>Crafted with Next.js 16, React 19 &amp; Tailwind CSS</span>
           <span>·</span>

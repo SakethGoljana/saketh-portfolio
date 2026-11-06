@@ -1005,6 +1005,7 @@ export default function CrmStudio() {
                 const isSelected = item.id === selectedLeadId;
                 const stageColor = STAGE_COLORS[item.stage];
                 const pending = Math.max(0, item.dealValue - item.amountPaid);
+                const sym = item.currency === "INR" ? "₹" : "$";
 
                 return (
                   <div
@@ -1030,7 +1031,7 @@ export default function CrmStudio() {
                         <span>{item.name}</span>
                         {item.dealValue > 0 && (
                           <span className="text-[10px] font-mono text-[#7CF4D4] bg-[#7CF4D4]/10 px-1.5 py-0.2 rounded border border-[#7CF4D4]/30">
-                            ${item.dealValue.toLocaleString()}
+                            {sym}{item.dealValue.toLocaleString()}
                           </span>
                         )}
                       </span>
@@ -1057,12 +1058,12 @@ export default function CrmStudio() {
                         <span className="text-[#A1A1AA]">
                           Paid:{" "}
                           <strong className="text-[#7CF4D4]">
-                            ${item.amountPaid.toLocaleString()}
+                            {sym}{item.amountPaid.toLocaleString()}
                           </strong>
                         </span>
                         {pending > 0 ? (
                           <span className="text-[#FF7A59]">
-                            Due: ${pending.toLocaleString()}
+                            Due: {sym}{pending.toLocaleString()}
                           </span>
                         ) : (
                           <span className="text-[#7CF4D4]">✓ Settled</span>
