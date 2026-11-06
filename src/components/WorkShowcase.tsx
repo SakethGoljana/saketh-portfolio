@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowUpRight,
@@ -353,11 +354,12 @@ function MobileDeviceMockup() {
         <div className="w-full h-2.5 bg-black/80 flex items-center justify-center">
           <div className="w-6 h-1 rounded-full bg-white/20" />
         </div>
-        <img
+        <Image
           src="/snapshots/dispatch-07-mapping.png"
           alt="Dispatch Column Mapper"
-          className="w-full h-full object-cover object-top opacity-75 group-hover:opacity-95 transition-opacity duration-300"
-          loading="lazy"
+          fill
+          sizes="(max-width: 768px) 50vw, 400px"
+          className="object-cover object-top opacity-75 group-hover:opacity-95 transition-opacity duration-300"
         />
       </div>
 
@@ -366,11 +368,13 @@ function MobileDeviceMockup() {
         <div className="w-full h-3 bg-black/90 flex items-center justify-center">
           <div className="w-8 h-1 rounded-full bg-white/30" />
         </div>
-        <img
+        <Image
           src="/snapshots/dispatch-01-home.png"
           alt="Dispatch Home Hub"
-          className="w-full h-full object-cover object-top"
-          loading="lazy"
+          fill
+          sizes="(max-width: 768px) 50vw, 450px"
+          className="object-cover object-top"
+          priority={false}
         />
       </div>
 
@@ -379,11 +383,12 @@ function MobileDeviceMockup() {
         <div className="w-full h-2.5 bg-black/80 flex items-center justify-center">
           <div className="w-6 h-1 rounded-full bg-white/20" />
         </div>
-        <img
+        <Image
           src="/snapshots/dispatch-09-sender.png"
           alt="Dispatch 1-Tap Sender"
-          className="w-full h-full object-cover object-top opacity-75 group-hover:opacity-95 transition-opacity duration-300"
-          loading="lazy"
+          fill
+          sizes="(max-width: 768px) 50vw, 400px"
+          className="object-cover object-top opacity-75 group-hover:opacity-95 transition-opacity duration-300"
         />
       </div>
     </div>
@@ -405,11 +410,12 @@ function WebDeviceMockup() {
         </div>
         {/* Real Desktop Platform Screenshot */}
         <div className="relative w-full h-full bg-[#0D0D14] overflow-hidden">
-          <img
+          <Image
             src="/snapshots/portfolio-desktop-hero.png"
             alt="Full-Stack Portfolio Desktop Platform"
-            className="w-full h-full object-cover object-top"
-            loading="lazy"
+            fill
+            sizes="(max-width: 768px) 80vw, 600px"
+            className="object-cover object-top"
           />
         </div>
       </div>
@@ -419,11 +425,12 @@ function WebDeviceMockup() {
         <div className="w-full h-1.5 bg-black/80 flex items-center justify-center">
           <div className="w-4 h-0.5 rounded-full bg-white/20" />
         </div>
-        <img
+        <Image
           src="/snapshots/portfolio-mobile-hero.png"
           alt="Mobile Portfolio Platform"
-          className="w-full h-full object-cover object-top opacity-95"
-          loading="lazy"
+          fill
+          sizes="(max-width: 768px) 30vw, 250px"
+          className="object-cover object-top opacity-95"
         />
       </div>
     </div>
@@ -1133,11 +1140,12 @@ export default function WorkShowcase() {
                                 {/* Screen Container with Desktop Aspect Ratio */}
                                 <div className="relative rounded-[12px] sm:rounded-[16px] overflow-hidden bg-black aspect-[16/9.5]">
                                   {snap.imageSrc ? (
-                                    <img
+                                    <Image
                                       src={snap.imageSrc}
                                       alt={snap.title}
-                                      className="w-full h-full object-cover object-top select-none pointer-events-none"
-                                      loading="lazy"
+                                      fill
+                                      sizes="(max-width: 768px) 90vw, 500px"
+                                      className="object-cover object-top select-none pointer-events-none"
                                       draggable={false}
                                     />
                                   ) : (
@@ -1185,11 +1193,12 @@ export default function WorkShowcase() {
                                 {/* Screen Container with Smartphone Aspect Ratio */}
                                 <div className="relative rounded-[22px] sm:rounded-[28px] overflow-hidden bg-black aspect-[9/19.5]">
                                   {snap.imageSrc ? (
-                                    <img
+                                    <Image
                                       src={snap.imageSrc}
                                       alt={snap.title}
-                                      className="w-full h-full object-cover object-top select-none pointer-events-none"
-                                      loading="lazy"
+                                      fill
+                                      sizes="(max-width: 768px) 70vw, 300px"
+                                      className="object-cover object-top select-none pointer-events-none"
                                       draggable={false}
                                     />
                                   ) : (
@@ -1308,11 +1317,12 @@ export default function WorkShowcase() {
                               title={snap.title}
                             >
                               {snap.imageSrc ? (
-                                <img
+                                <Image
                                   src={snap.imageSrc}
                                   alt={snap.badge}
-                                  className="w-full h-full object-cover object-top select-none pointer-events-none"
-                                  loading="lazy"
+                                  fill
+                                  sizes="80px"
+                                  className="object-cover object-top select-none pointer-events-none"
                                 />
                               ) : (
                                 <div className="w-full h-full bg-[var(--muted)] flex items-center justify-center text-[10px] font-mono font-bold">
@@ -1399,12 +1409,12 @@ export default function WorkShowcase() {
                         {/* Realistic Visual Mockup Screen / Screenshot */}
                         <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-2 sm:p-4 shadow-md overflow-hidden flex items-center justify-center">
                           {activeModalProject.snapshots[activeSnapshotIndex].imageSrc ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
+                            <Image
                               src={activeModalProject.snapshots[activeSnapshotIndex].imageSrc}
                               alt={activeModalProject.snapshots[activeSnapshotIndex].title}
+                              width={700}
+                              height={500}
                               className="max-h-[380px] w-auto object-contain rounded-xl shadow-lg border border-[var(--border)]"
-                              loading="lazy"
                             />
                           ) : (
                             <SnapshotScreen

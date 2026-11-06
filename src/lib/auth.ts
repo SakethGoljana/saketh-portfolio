@@ -14,6 +14,7 @@ const consumedTotpTokens = new Map<string, number>();
 
 const KNOWN_PLACEHOLDERS = new Set([
   "your_master_admin_password_here",
+  "your_secure_password_here",
   "your_base32_authenticator_secret",
   "your_sheets_sync_secret_here",
 ]);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useSyncExternalStore } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   CheckCircle2,
@@ -64,13 +64,36 @@ function formatDayLabel(d: Date): string {
   return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
 }
 
+const emptySubscribe = () => () => {};
+
+let cachedClientToday: Date | null = null;
+function getClientToday(): Date | null {
+  if (typeof window === "undefined") return null;
+  if (!cachedClientToday) {
+    cachedClientToday = new Date();
+  }
+  return cachedClientToday;
+}
+function getServerToday(): Date | null {
+  return null;
+}
+
+const STABLE_FALLBACK_DATE = new Date(2026, 0, 1);
+
 export default function BookingAndBrief() {
   const [activeTab, setActiveTab] = useState<"call" | "brief">("call");
 
-  // Real Month Calendar State
-  const [currentMonthDate, setCurrentMonthDate] = useState(() => new Date());
-  const [selectedDate, setSelectedDate] = useState(() => new Date());
-  const [selectedDay, setSelectedDay] = useState<string>(() => formatDayLabel(new Date()));
+  // Client mount & Real Month Calendar State (guards against SSR hydration mismatch)
+  const clientToday = useSyncExternalStore(emptySubscribe, getClientToday, getServerToday);
+  const mounted = Boolean(clientToday);
+
+  const [userMonthDate, setUserMonthDate] = useState<Date | null>(null);
+  const [userSelectedDate, setUserSelectedDate] = useState<Date | null>(null);
+  const [userSelectedDay, setUserSelectedDay] = useState<string | null>(null);
+
+  const currentMonthDate = userMonthDate ?? clientToday ?? STABLE_FALLBACK_DATE;
+  const selectedDate = userSelectedDate ?? clientToday ?? STABLE_FALLBACK_DATE;
+  const selectedDay = userSelectedDay ?? (clientToday ? formatDayLabel(clientToday) : "");
   const [selectedSlot, setSelectedSlot] = useState<string>("11:30 AM");
   const [bookName, setBookName] = useState<string>("");
   const [bookContact, setBookContact] = useState<string>("");
@@ -102,12 +125,12 @@ export default function BookingAndBrief() {
 
   // Month navigation
   const handlePrevMonth = () => {
-    setCurrentMonthDate((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+    setUserMonthDate(new Date(currentMonthDate.getFullYear(), currentMonthDate.getMonth() - 1, 1));
     triggerHaptic("tap");
   };
 
   const handleNextMonth = () => {
-    setCurrentMonthDate((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+    setUserMonthDate(new Date(currentMonthDate.getFullYear(), currentMonthDate.getMonth() + 1, 1));
     triggerHaptic("tap");
   };
 
@@ -158,6 +181,7 @@ export default function BookingAndBrief() {
 
   // Mobile Upcoming Days Strip (Next 14 Days)
   const mobileUpcomingDays = useMemo(() => {
+    if (!mounted) return [];
     const list: { date: Date; dayName: string; dayNum: number; monthName: string; isToday: boolean; formatted: string }[] = [];
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -175,7 +199,7 @@ export default function BookingAndBrief() {
       });
     }
     return list;
-  }, []);
+  }, [mounted]);
 
   // Filtered mobile slots
   const mobileSlots = useMemo(() => {
@@ -195,6 +219,7 @@ export default function BookingAndBrief() {
   };
 
   const isDatePast = (date: Date) => {
+    if (!mounted) return false;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const target = new Date(date);
@@ -617,8 +642,8 @@ export default function BookingAndBrief() {
                         <div>
                           {/* Month Header with < > Controls */}
                           <div className="flex items-center justify-between mb-4">
-                            <span className="text-sm font-bold font-mono text-[var(--foreground)]">
-                              {currentMonthDate.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+                            <span className="text-sm font-bold font-mono text-[var(--foreground)] min-h-[1.25rem]">
+                              {mounted ? currentMonthDate.toLocaleDateString("en-US", { month: "long", year: "numeric" }) : ""}
                             </span>
                             <div className="flex items-center gap-1">
                               <button
@@ -650,38 +675,42 @@ export default function BookingAndBrief() {
                           </div>
 
                           {/* Days Grid */}
-                          <div className="grid grid-cols-7 gap-1 text-center">
-                            {calendarDays.map((d, index) => {
-                              const isSelected = isSameDay(d.date, selectedDate);
-                              const isPast = isDatePast(d.date);
-                              const isCurrentMonth = d.isCurrentMonth;
+                          <div className="grid grid-cols-7 gap-1 text-center min-h-[180px]">
+                            {mounted
+                              ? calendarDays.map((d, index) => {
+                                  const isSelected = isSameDay(d.date, selectedDate);
+                                  const isPast = isDatePast(d.date);
+                                  const isCurrentMonth = d.isCurrentMonth;
 
-                              return (
-                                <button
-                                  key={`${d.date.toISOString()}-${index}`}
-                                  type="button"
-                                  disabled={isPast || !isCurrentMonth}
-                                  onClick={() => {
-                                    if (!isPast && isCurrentMonth) {
-                                      setSelectedDate(d.date);
-                                      setSelectedDay(formatDayLabel(d.date));
-                                      triggerHaptic("tap");
-                                    }
-                                  }}
-                                  className={`h-9 w-full rounded-xl flex items-center justify-center font-mono text-xs font-semibold transition-all duration-150 ${
-                                    isSelected
-                                      ? "bg-emerald-600 text-white font-bold shadow-md shadow-emerald-500/35 ring-2 ring-emerald-400 scale-105"
-                                      : !isCurrentMonth
-                                      ? "text-slate-400 dark:text-zinc-700 cursor-not-allowed opacity-30"
-                                      : isPast
-                                      ? "text-slate-400 dark:text-zinc-700 cursor-not-allowed opacity-30"
-                                      : "text-[var(--foreground)] hover:bg-slate-200/80 dark:hover:bg-white/10 hover:text-emerald-600 dark:hover:text-emerald-400 cursor-pointer active:scale-95"
-                                  }`}
-                                >
-                                  {d.day}
-                                </button>
-                              );
-                            })}
+                                  return (
+                                    <button
+                                      key={`${d.date.toISOString()}-${index}`}
+                                      type="button"
+                                      disabled={isPast || !isCurrentMonth}
+                                      onClick={() => {
+                                        if (!isPast && isCurrentMonth) {
+                                          setUserSelectedDate(d.date);
+                                          setUserSelectedDay(formatDayLabel(d.date));
+                                          triggerHaptic("tap");
+                                        }
+                                      }}
+                                      className={`h-9 w-full rounded-xl flex items-center justify-center font-mono text-xs font-semibold transition-all duration-150 ${
+                                        isSelected
+                                          ? "bg-emerald-600 text-white font-bold shadow-md shadow-emerald-500/35 ring-2 ring-emerald-400 scale-105"
+                                          : !isCurrentMonth
+                                          ? "text-slate-400 dark:text-zinc-700 cursor-not-allowed opacity-30"
+                                          : isPast
+                                          ? "text-slate-400 dark:text-zinc-700 cursor-not-allowed opacity-30"
+                                          : "text-[var(--foreground)] hover:bg-slate-200/80 dark:hover:bg-white/10 hover:text-emerald-600 dark:hover:text-emerald-400 cursor-pointer active:scale-95"
+                                      }`}
+                                    >
+                                      {d.day}
+                                    </button>
+                                  );
+                                })
+                              : [...Array(35)].map((_, i) => (
+                                  <div key={i} className="h-9 w-full rounded-xl bg-slate-100/50 dark:bg-white/[0.02]" />
+                                ))}
                           </div>
                         </div>
 
@@ -765,7 +794,7 @@ export default function BookingAndBrief() {
                         <div className="px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-300 font-mono text-xs font-bold inline-flex items-center gap-1.5 self-start">
                           <Star size={12} className="text-emerald-600 dark:text-emerald-400 fill-emerald-600 dark:fill-emerald-400" />
                           <span>
-                            {selectedSlot}, {selectedDay}
+                            {selectedSlot}{mounted && selectedDay ? `, ${selectedDay}` : ""}
                           </span>
                         </div>
                         <span className="text-xs text-[var(--subtext)] font-mono">
@@ -831,49 +860,57 @@ export default function BookingAndBrief() {
                           1 · Select Date
                         </span>
                         <span className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
-                          {selectedDay}
+                          {mounted && selectedDay ? selectedDay : ""}
                         </span>
                       </div>
 
                       {/* Horizontal Scroll Day Strip */}
                       <div className="flex items-center gap-2 overflow-x-auto pb-1.5 pt-0.5 -mx-1 px-1 no-scrollbar scroll-smooth snap-x">
-                        {mobileUpcomingDays.map((d) => {
-                          const isSelected = isSameDay(d.date, selectedDate);
-                          return (
-                            <button
-                              key={d.date.toISOString()}
-                              type="button"
-                              onClick={() => {
-                                setSelectedDate(d.date);
-                                setSelectedDay(d.formatted);
-                                triggerHaptic("tap");
-                              }}
-                              className={`shrink-0 snap-start flex flex-col items-center justify-center w-[60px] py-2 px-1.5 rounded-2xl border transition-all cursor-pointer ${
-                                isSelected
-                                  ? "bg-emerald-600 text-white border-emerald-500 shadow-md shadow-emerald-500/30 scale-[1.02]"
-                                  : "bg-slate-100/90 dark:bg-white/5 border-slate-200/90 dark:border-white/10 text-[var(--foreground)] hover:border-emerald-400/60 active:scale-95"
-                              }`}
-                            >
-                              <span
-                                className={`text-[10px] font-mono uppercase font-bold tracking-wider ${
+                        {mounted && mobileUpcomingDays.length > 0 ? (
+                          mobileUpcomingDays.map((d) => {
+                            const isSelected = isSameDay(d.date, selectedDate);
+                            return (
+                              <button
+                                key={d.date.toISOString()}
+                                type="button"
+                                onClick={() => {
+                                  setUserSelectedDate(d.date);
+                                  setUserSelectedDay(d.formatted);
+                                  triggerHaptic("tap");
+                                }}
+                                className={`shrink-0 snap-start flex flex-col items-center justify-center w-[60px] py-2 px-1.5 rounded-2xl border transition-all cursor-pointer ${
                                   isSelected
-                                    ? "text-emerald-200"
-                                    : d.isToday
-                                    ? "text-emerald-600 dark:text-emerald-400"
-                                    : "text-[var(--subtext)]"
+                                    ? "bg-emerald-600 text-white border-emerald-500 shadow-md shadow-emerald-500/30 scale-[1.02]"
+                                    : "bg-slate-100/90 dark:bg-white/5 border-slate-200/90 dark:border-white/10 text-[var(--foreground)] hover:border-emerald-400/60 active:scale-95"
                                 }`}
                               >
-                                {d.isToday ? "Today" : d.dayName}
-                              </span>
-                              <span className="text-base font-bold font-mono my-0.5">
-                                {d.dayNum}
-                              </span>
-                              <span className={`text-[10px] font-mono ${isSelected ? "text-emerald-200" : "text-[var(--subtext)]"}`}>
-                                {d.monthName}
-                              </span>
-                            </button>
-                          );
-                        })}
+                                <span
+                                  className={`text-[10px] font-mono uppercase font-bold tracking-wider ${
+                                    isSelected
+                                      ? "text-emerald-200"
+                                      : d.isToday
+                                      ? "text-emerald-600 dark:text-emerald-400"
+                                      : "text-[var(--subtext)]"
+                                  }`}
+                                >
+                                  {d.isToday ? "Today" : d.dayName}
+                                </span>
+                                <span className="text-base font-bold font-mono my-0.5">
+                                  {d.dayNum}
+                                </span>
+                                <span className={`text-[10px] font-mono ${isSelected ? "text-emerald-200" : "text-[var(--subtext)]"}`}>
+                                  {d.monthName}
+                                </span>
+                              </button>
+                            );
+                          })
+                        ) : (
+                          <div className="flex items-center gap-2 py-1">
+                            {[...Array(7)].map((_, i) => (
+                              <div key={i} className="w-[60px] h-[64px] rounded-2xl bg-slate-100/80 dark:bg-white/5 shrink-0" />
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -941,7 +978,7 @@ export default function BookingAndBrief() {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 font-mono">
                             <Star size={13} className="fill-emerald-600 text-emerald-600 dark:fill-emerald-400 dark:text-emerald-400" />
-                            <span>{selectedSlot} · {selectedDay}</span>
+                            <span>{selectedSlot}{mounted && selectedDay ? ` · ${selectedDay}` : ""}</span>
                           </div>
                           <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 font-semibold border border-emerald-500/20">
                             30-Min Call

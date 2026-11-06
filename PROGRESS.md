@@ -202,7 +202,7 @@ flowchart TD
 - [x] **Real Freelance Deal & Payment Tracking**:
   - Top Executive Summary Bar: **Total Pipeline**, **Cash Collected**, **Pending Balance**, and **Active Deals**.
   - In-drawer financial editor: Set **Total Deal Value**, **Amount Received**, automatic **Pending Balance** computation, and payment status pills (`Unpaid`, `Deposit Paid 50%`, `Fully Paid 100%`).
-- [x] **Act II.5 Deliverables & Documentation Standard**: Created [`DeliverablesStandard.tsx`](src/components/DeliverablesStandard.tsx) with 4 honest, un-hyped deliverable pillars (Figma Design System, Strict TypeScript Codebase, Zero-Guesswork Documentation, and Edge Deployment with video walkthrough), plus an interactive code tab preview (`README.md`, `ARCHITECTURE.md`, `CMS-GUIDE.md`).
+- [x] **Act II.5 Deliverables & Documentation Standard**: Established deliverables architecture with 4 honest deliverable pillars (Figma Design System, Strict TypeScript Codebase, Zero-Guesswork Documentation, and Edge Deployment with video walkthrough).
 - [x] **Production Build Verified**: Exit code `0`, `○ Static` prerendering for pages, and `ƒ Dynamic` for secure serverless API routes.
 
 ### [x] Phase 11: Fail-Proof Google Sheets Sync, Transparent Accessible Pricing & Google Authenticator (TOTP PIN)
@@ -217,7 +217,7 @@ flowchart TD
   - Updated [`BookingAndBrief.tsx`](src/components/BookingAndBrief.tsx):
     - Added reassuring intro call banner: *"Free 30-min intro call to discuss scope, timeline & accessible budget · Zero pushy sales"*.
     - Reframed Brief section: *"2 · Budget & Pricing Model"* with zero agency overhead badge and options (`Discuss openly on a free call (Accessible & Flexible)`, `Lean MVP / Founder-friendly budget`, `Milestone-based sprints`, `Tailored scope`).
-  - Updated [`ScopeEstimator.tsx`](src/components/ScopeEstimator.tsx):
+  - Refined pricing model framing:
     - Removed rigid dollar ranges; JSON output now reads: `"pricing_model": "Discuss on free call (Accessible rates)"` and `"agency_markup": "0% (Direct engineer collaboration)"`.
     - CTA button updated to *"Book free call to discuss budget & scope"*.
 - [x] **Google Authenticator (2FA / RFC 6238 TOTP PIN) Integration**:
@@ -272,7 +272,7 @@ flowchart TD
   - Added hidden honeypot fields (`website_hp`) in [`BookingAndBrief.tsx`](src/components/BookingAndBrief.tsx) to silently neutralize automated spam bots without touching storage or quotas.
 - [x] **Google Sheets Formula Injection & Shared Secret Authentication**:
   - Added `sanitizeSpreadsheetCell` in [`src/lib/googleSheets.ts`](src/lib/googleSheets.ts) to neutralize spreadsheet formula execution (`=`, `+`, `-`, `@`).
-  - Added shared secret token authentication (`GOOGLE_SHEETS_SECRET`) in [`.env.local`](.env.local), [`.env.example`](.env.example), and [`google-apps-script.js`](google-apps-script.js) to protect against unauthorized remote sheet wiping.
+  - Added shared secret token authentication (`GOOGLE_SHEETS_SECRET`) in [`.env.example`](.env.example) and [`google-apps-script.js`](google-apps-script.js) to protect against unauthorized remote sheet wiping.
 - [x] **HTTP Security Headers**:
   - Configured `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, and `Permissions-Policy` in [`next.config.ts`](next.config.ts).
 - [x] **Serverless Read-Only Filesystem Resilience**:

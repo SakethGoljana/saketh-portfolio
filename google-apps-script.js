@@ -9,10 +9,12 @@
  * HOW TO SET UP (Takes 60 seconds):
  * 1. Open your Google Sheet -> Click Extensions > Apps Script
  * 2. Delete everything and paste this entire code
- * 3. Click "Save" (Ctrl+S / Cmd+S)
- * 4. Click "Deploy" > "Manage deployments" -> Edit -> "New version"
- * 5. Ensure "Who has access" is set to "Anyone"
- * 6. Click "Deploy"
+ * 3. Go to Project Settings (gear icon) > Script Properties > Add script property:
+ *    Property: SCRIPT_SECRET | Value: (same value as GOOGLE_SHEETS_SECRET in .env.local)
+ * 4. Click "Save" (Ctrl+S / Cmd+S)
+ * 5. Click "Deploy" > "New deployment" (or "Manage deployments" -> Edit -> "New version")
+ * 6. Set type: "Web app", "Execute as": "Me", "Who has access": "Anyone"
+ * 7. Click "Deploy" and copy the Web App URL into .env.local as GOOGLE_SHEET_WEBHOOK_URL
  * ====================================================================
  */
 

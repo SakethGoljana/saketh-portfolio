@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { RefreshCw, Home, AlertOctagon } from "lucide-react";
 
 export default function GlobalError({
@@ -45,13 +44,18 @@ export default function GlobalError({
               <RefreshCw size={14} />
               <span>Retry Root</span>
             </button>
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/15 text-white text-xs font-semibold transition-all"
+            <button
+              type="button"
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  window.location.href = "/";
+                }
+              }}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/15 text-white text-xs font-semibold transition-all cursor-pointer"
             >
               <Home size={14} />
               <span>Hard Reload</span>
-            </Link>
+            </button>
           </div>
         </main>
       </body>

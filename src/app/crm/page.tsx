@@ -76,9 +76,11 @@ function formatTimeAgo(isoString: string): string {
 const GOOGLE_APPS_SCRIPT_TEMPLATE = `/**
  * Saketh Portfolio - Secure Google Sheets Webhook Sync Script
  * 1. Open your Google Sheet -> Click Extensions > Apps Script
- * 2. Paste this code -> Click Deploy > New deployment > Web app
- * 3. Set Execute as: Me, Access: Anyone -> Copy Web app URL
- * 4. Paste URL into .env.local as GOOGLE_SHEET_WEBHOOK_URL
+ * 2. Delete everything and paste this code
+ * 3. Go to Project Settings (gear icon) > Script Properties > Add script property:
+ *    Property: SCRIPT_SECRET | Value: (same value as GOOGLE_SHEETS_SECRET in .env.local)
+ * 4. Deploy > New deployment > Web app (Execute as: Me, Access: Anyone)
+ * 5. Paste Web app URL into .env.local as GOOGLE_SHEET_WEBHOOK_URL
  */
 var SCRIPT_SECRET = PropertiesService.getScriptProperties().getProperty("SCRIPT_SECRET");
 
@@ -104,38 +106,44 @@ function doPost(e) {
       ).setMimeType(ContentService.MimeType.JSON);
     }
     
+    var HEADERS = [
+      "ID", "Date & Time", "Type", "Status", "Name", "Contact", 
+      "Service", "Schedule", "Budget / Model", "Deal Value ($)", 
+      "Amount Paid ($)", "Pending Balance ($)", "Payment Status", 
+      "Client Notes", "Internal Notes"
+    ];
+
     // Ensure header row exists
     if (sheet.getLastRow() === 0) {
-      sheet.appendRow([
-        "ID", "Date & Time", "Type", "Status", "Name", "Contact", 
-        "Service", "Schedule", "Budget / Model", "Deal Value ($)", 
-        "Amount Paid ($)", "Pending Balance ($)", "Payment Status", 
-        "Client Notes", "Internal Notes"
-      ]);
-      sheet.getRange(1, 1, 1, 15).setFontWeight("bold").setBackground("#121218").setFontColor("#D2FF3F");
+      sheet.appendRow(HEADERS);
+      sheet.getRange(1, 1, 1, HEADERS.length).setFontWeight("bold").setBackground("#121218").setFontColor("#D2FF3F");
       sheet.setFrozenRows(1);
     }
 
     if (payload.action === "sync_all") {
+      var isEmpty = !Array.isArray(payload.leads) || payload.leads.length === 0;
+      if (isEmpty && !payload.allowEmpty) {
+        return ContentService.createTextOutput(
+          JSON.stringify({ error: "Empty leads array. Pass allowEmpty: true to confirm." })
+        ).setMimeType(ContentService.MimeType.JSON);
+      }
       sheet.clearContents();
-      sheet.appendRow([
-        "ID", "Date & Time", "Type", "Status", "Name", "Contact", 
-        "Service", "Schedule", "Budget / Model", "Deal Value ($)", 
-        "Amount Paid ($)", "Pending Balance ($)", "Payment Status", 
-        "Client Notes", "Internal Notes"
-      ]);
-      sheet.getRange(1, 1, 1, 15).setFontWeight("bold").setBackground("#121218").setFontColor("#D2FF3F");
+      sheet.appendRow(HEADERS);
+      sheet.getRange(1, 1, 1, HEADERS.length).setFontWeight("bold").setBackground("#121218").setFontColor("#D2FF3F");
       sheet.setFrozenRows(1);
       
-      payload.leads.forEach(function(l) {
-        sheet.appendRow([
-          escapeFormula(l.id), escapeFormula(l.createdAt), escapeFormula(l.type), escapeFormula(l.status), escapeFormula(l.name), escapeFormula(l.contact),
-          escapeFormula(l.service), escapeFormula(l.schedule), escapeFormula(l.budgetOrPreference), l.dealValue,
-          l.amountPaid, l.pendingBalance, escapeFormula(l.paymentStatus),
-          escapeFormula(l.notes), escapeFormula(l.internalNotes)
-        ]);
-      });
-      return ContentService.createTextOutput(JSON.stringify({ status: "success", count: payload.leads.length })).setMimeType(ContentService.MimeType.JSON);
+      if (Array.isArray(payload.leads) && payload.leads.length > 0) {
+        var rows = payload.leads.map(function(l) {
+          return [
+            escapeFormula(l.id), escapeFormula(l.createdAt), escapeFormula(l.type), escapeFormula(l.status), escapeFormula(l.name), escapeFormula(l.contact),
+            escapeFormula(l.service), escapeFormula(l.schedule), escapeFormula(l.budgetOrPreference), Number(l.dealValue) || 0,
+            Number(l.amountPaid) || 0, Number(l.pendingBalance) || 0, escapeFormula(l.paymentStatus),
+            escapeFormula(l.notes), escapeFormula(l.internalNotes)
+          ];
+        });
+        sheet.getRange(2, 1, rows.length, HEADERS.length).setValues(rows);
+      }
+      return ContentService.createTextOutput(JSON.stringify({ status: "success", count: payload.leads ? payload.leads.length : 0 })).setMimeType(ContentService.MimeType.JSON);
     }
 
     // Single lead sync (updates existing or appends new)
@@ -151,13 +159,13 @@ function doPost(e) {
 
     var rowValues = [
       escapeFormula(l.id), escapeFormula(l.createdAt), escapeFormula(l.type), escapeFormula(l.status), escapeFormula(l.name), escapeFormula(l.contact),
-      escapeFormula(l.service), escapeFormula(l.schedule), escapeFormula(l.budgetOrPreference), l.dealValue,
-      l.amountPaid, l.pendingBalance, escapeFormula(l.paymentStatus),
+      escapeFormula(l.service), escapeFormula(l.schedule), escapeFormula(l.budgetOrPreference), Number(l.dealValue) || 0,
+      Number(l.amountPaid) || 0, Number(l.pendingBalance) || 0, escapeFormula(l.paymentStatus),
       escapeFormula(l.notes), escapeFormula(l.internalNotes)
     ];
 
     if (rowIndex > 0) {
-      sheet.getRange(rowIndex, 1, 1, 15).setValues([rowValues]);
+      sheet.getRange(rowIndex, 1, 1, HEADERS.length).setValues([rowValues]);
     } else {
       sheet.appendRow(rowValues);
     }
@@ -166,7 +174,7 @@ function doPost(e) {
   } catch (err) {
     return ContentService.createTextOutput(JSON.stringify({ status: "error", message: err.toString() })).setMimeType(ContentService.MimeType.JSON);
   }
-}`;
+};`;
 
 export default function CrmStudio() {
   // Auth state
@@ -190,6 +198,7 @@ export default function CrmStudio() {
   const [editPaymentStatus, setEditPaymentStatus] = useState<"unpaid" | "deposit_paid" | "fully_paid">("unpaid");
   const [editInternalNotes, setEditInternalNotes] = useState<string>("");
   const [saveSuccessNotice, setSaveSuccessNotice] = useState(false);
+  const [saveErrorNotice, setSaveErrorNotice] = useState<string>("");
   const [isSaving, setIsSaving] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
@@ -401,6 +410,11 @@ export default function CrmStudio() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: selectedLeadId, status: statusMap[newStage] }),
       });
+      if (res.status === 401) {
+        setLeads(previousLeads);
+        setIsAuthenticated(false);
+        return;
+      }
       if (!res.ok) {
         setLeads(previousLeads);
       }
@@ -414,6 +428,7 @@ export default function CrmStudio() {
   const handleSaveDealDetails = async () => {
     if (!selectedLeadId) return;
     setIsSaving(true);
+    setSaveErrorNotice("");
 
     try {
       const payload = {
@@ -431,8 +446,13 @@ export default function CrmStudio() {
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
-      if (data.success) {
+      if (res.status === 401) {
+        setIsAuthenticated(false);
+        return;
+      }
+
+      const data = await res.json().catch(() => null);
+      if (res.ok && data?.success) {
         setLeads((prev) =>
           prev.map((l) =>
             l.id === selectedLeadId
@@ -448,10 +468,15 @@ export default function CrmStudio() {
           )
         );
         setSaveSuccessNotice(true);
-        setTimeout(() => setSaveSuccessNotice(false), 2000);
+        setTimeout(() => setSaveSuccessNotice(false), 2500);
+      } else {
+        setSaveErrorNotice(data?.error || `Failed to save (HTTP ${res.status})`);
+        setTimeout(() => setSaveErrorNotice(""), 4000);
       }
     } catch (err) {
       console.error("Failed to save deal terms:", err);
+      setSaveErrorNotice("Network error: Failed to reach server");
+      setTimeout(() => setSaveErrorNotice(""), 4000);
     } finally {
       setIsSaving(false);
     }
@@ -461,8 +486,12 @@ export default function CrmStudio() {
   const handleDeleteLead = async (id: string) => {
     try {
       const res = await fetch(`/api/leads?id=${id}`, { method: "DELETE" });
-      const data = await res.json();
-      if (data.success) {
+      if (res.status === 401) {
+        setIsAuthenticated(false);
+        return;
+      }
+      const data = await res.json().catch(() => null);
+      if (res.ok && data?.success) {
         setLeads((prev) => prev.filter((l) => l.id !== id));
         setDeleteConfirmId(null);
         if (selectedLeadId === id) {
@@ -970,15 +999,7 @@ export default function CrmStudio() {
                       <Mail size={14} />
                       <span>Send Email to Client</span>
                     </a>
-                  ) : (
-                    <a
-                      href={`mailto:${selectedLead.contact}`}
-                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#1E1E2A] hover:bg-[#2A2A3A] border border-[#2E2E3E] text-xs font-mono text-[#F4F4F0] transition-all cursor-pointer"
-                    >
-                      <Mail size={14} />
-                      <span>Send Email</span>
-                    </a>
-                  )}
+                  ) : null}
                   {selectedLead.day && selectedLead.slot && (
                     <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#09090D] border border-[#22222E] text-xs font-mono text-[var(--accent)]">
                       <Calendar size={13} />
@@ -1026,6 +1047,11 @@ export default function CrmStudio() {
                   {saveSuccessNotice && (
                     <span className="text-xs font-mono text-[#7CF4D4] animate-in fade-in">
                       ✓ Changes saved &amp; synced
+                    </span>
+                  )}
+                  {saveErrorNotice && (
+                    <span className="text-xs font-mono text-rose-400 animate-in fade-in">
+                      ✕ {saveErrorNotice}
                     </span>
                   )}
                 </div>
@@ -1257,7 +1283,7 @@ export default function CrmStudio() {
                   className="flex items-center gap-1 text-[11px] text-[var(--accent)] hover:underline cursor-pointer"
                 >
                   {copiedScript ? <Check size={12} /> : <Copy size={12} />}
-                  <span>{copiedScript ? "Copied Script!" : "Copy 15-Line Script"}</span>
+                  <span>{copiedScript ? "Copied Script!" : "Copy Apps Script"}</span>
                 </button>
               </div>
 

@@ -7,12 +7,22 @@ export interface SheetSyncResult {
   message: string;
 }
 
+const KNOWN_SHEETS_PLACEHOLDERS = new Set([
+  "your_sheets_sync_secret_here",
+  "your_google_sheets_webhook_url_here",
+  "your_sheets_webhook_url_here",
+]);
+
 export function getGoogleSheetWebhookUrl(): string | null {
-  return process.env.GOOGLE_SHEET_WEBHOOK_URL || null;
+  const url = process.env.GOOGLE_SHEET_WEBHOOK_URL?.trim();
+  if (!url || KNOWN_SHEETS_PLACEHOLDERS.has(url.toLowerCase())) return null;
+  return url;
 }
 
 export function getGoogleSheetSecret(): string | null {
-  return process.env.GOOGLE_SHEETS_SECRET || null;
+  const secret = process.env.GOOGLE_SHEETS_SECRET?.trim();
+  if (!secret || KNOWN_SHEETS_PLACEHOLDERS.has(secret.toLowerCase())) return null;
+  return secret;
 }
 
 export function isGoogleSheetConfigured(): boolean {

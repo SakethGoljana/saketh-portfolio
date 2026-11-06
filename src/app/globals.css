@@ -395,6 +395,21 @@ a:not([aria-disabled="true"]) {
 
 /* Respect user's system motion preferences */
 @media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-marquee-rev,
+  .animate-grain,
+  .animate-spin-slow,
+  .animate-float-slow,
+  .animate-float-medium,
+  .animate-float-reverse,
+  .pulse-dot,
+  .cursor-blink,
+  .animate-sheet-up,
+  .animate-mask-reveal {
+    animation: none !important;
+    transition: none !important;
+  }
+
   button:not(:disabled),
   button:not(:disabled):hover,
   button:not(:disabled):active,

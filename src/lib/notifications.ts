@@ -13,6 +13,18 @@ const ADMIN_EMAIL = process.env.NOTIFICATION_EMAIL?.trim() || "sakethgoljana098@
 const SENDER_EMAIL = process.env.SENDER_EMAIL?.trim() || "hello@sakethgoljana.tech";
 const SENDER_NAME = "Saketh Goljana";
 
+function escapeHtml(value: string | undefined | null): string {
+  if (!value) return "";
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 /**
  * Dispatch automated email notifications whenever a new lead is booked:
  * 1. Immediate rich alert to Saketh (admin)
@@ -52,32 +64,32 @@ export async function sendLeadNotifications(lead: Lead): Promise<{
         </div>
 
         <h2 style="font-size: 22px; font-weight: 700; margin: 0 0 16px; color: #F4F4F0; letter-spacing: -0.02em;">
-          New ${title} from ${lead.name}
+          New ${escapeHtml(title)} from ${escapeHtml(lead.name)}
         </h2>
 
         <div style="background: #14141C; border-radius: 12px; border: 1px solid #242432; padding: 20px; margin-bottom: 24px;">
           <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
             <tr>
               <td style="padding: 8px 0; color: #A1A1AA; width: 140px;">Client Name:</td>
-              <td style="padding: 8px 0; color: #FFFFFF; font-weight: 600;">${lead.name}</td>
+              <td style="padding: 8px 0; color: #FFFFFF; font-weight: 600;">${escapeHtml(lead.name)}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #A1A1AA;">Contact:</td>
-              <td style="padding: 8px 0; color: #7CF4D4; font-weight: 600;">${lead.contact}</td>
+              <td style="padding: 8px 0; color: #7CF4D4; font-weight: 600;">${escapeHtml(lead.contact)}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #A1A1AA;">Service:</td>
-              <td style="padding: 8px 0; color: #FFFFFF;">${lead.service || "General Inquiry"}</td>
+              <td style="padding: 8px 0; color: #FFFFFF;">${escapeHtml(lead.service || "General Inquiry")}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #A1A1AA;">${isCall ? "Date & Time:" : "Timeline:"}</td>
-              <td style="padding: 8px 0; color: #FFFFFF; font-weight: 600;">${scheduleOrTimeline}</td>
+              <td style="padding: 8px 0; color: #FFFFFF; font-weight: 600;">${escapeHtml(scheduleOrTimeline)}</td>
             </tr>
             ${
               lead.budget
                 ? `<tr>
               <td style="padding: 8px 0; color: #A1A1AA;">Budget Range:</td>
-              <td style="padding: 8px 0; color: #7CF4D4; font-weight: 700;">${lead.budget}</td>
+              <td style="padding: 8px 0; color: #7CF4D4; font-weight: 700;">${escapeHtml(lead.budget)}</td>
             </tr>`
                 : ""
             }
@@ -87,7 +99,7 @@ export async function sendLeadNotifications(lead: Lead): Promise<{
             lead.notes
               ? `<div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #20202C;">
               <span style="font-size: 12px; color: #A1A1AA; display: block; margin-bottom: 6px;">Client Notes / Scope:</span>
-              <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #D4D4D8; white-space: pre-wrap;">${lead.notes}</p>
+              <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #D4D4D8; white-space: pre-wrap;">${escapeHtml(lead.notes)}</p>
             </div>`
               : ""
           }
@@ -101,12 +113,13 @@ export async function sendLeadNotifications(lead: Lead): Promise<{
       </div>
     `;
 
+    const safeClientName = lead.name.replace(/[\r\n]/g, " ").trim();
     // Try sending from custom sender, fallback to onboarding sender if domain is pending verification
     const fromAddress = `${SENDER_NAME} <${SENDER_EMAIL}>`;
     let response = await resend.emails.send({
       from: fromAddress,
       to: [ADMIN_EMAIL],
-      subject: `🚀 New Lead: ${lead.name} · ${lead.service || "Inquiry"} (${isCall ? lead.slot || "Call" : lead.budget || "Brief"})`,
+      subject: `🚀 New Lead: ${safeClientName} · ${lead.service || "Inquiry"} (${isCall ? lead.slot || "Call" : lead.budget || "Brief"})`,
       html: adminHtml,
     });
 
@@ -115,7 +128,7 @@ export async function sendLeadNotifications(lead: Lead): Promise<{
       response = await resend.emails.send({
         from: `Saketh Portfolio <onboarding@resend.dev>`,
         to: [ADMIN_EMAIL],
-        subject: `🚀 New Lead: ${lead.name} · ${lead.service || "Inquiry"}`,
+        subject: `🚀 New Lead: ${safeClientName} · ${lead.service || "Inquiry"}`,
         html: adminHtml,
       });
     }
@@ -129,11 +142,12 @@ export async function sendLeadNotifications(lead: Lead): Promise<{
     console.warn("Failed to send admin notification:", err);
   }
 
-  // 2. Send Client Confirmation Email (if client provided an email address)
-  const isEmail = lead.contact.includes("@") && lead.contact.includes(".");
+  // 2. Send Client Confirmation Email (if client provided a valid email address)
+  const isEmail = EMAIL_REGEX.test(lead.contact.trim());
   if (isEmail) {
     try {
       const clientEmail = lead.contact.trim();
+      const firstName = lead.name.trim().split(" ")[0] || "there";
       const clientHtml = `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0E0E12; color: #FFFFFF; border-radius: 16px; overflow: hidden; border: 1px solid #22222E; padding: 32px;">
           <div style="margin-bottom: 24px;">
@@ -142,13 +156,13 @@ export async function sendLeadNotifications(lead: Lead): Promise<{
           </div>
 
           <h1 style="font-size: 24px; font-weight: 700; margin: 0 0 12px; color: #FFFFFF; letter-spacing: -0.02em;">
-            Thank you, ${lead.name.split(" ")[0]}!
+            Thank you, ${escapeHtml(firstName)}!
           </h1>
           <p style="font-size: 15px; line-height: 1.6; color: #A1A1AA; margin: 0 0 24px;">
             ${
               isCall
-                ? `I've received your discovery call request for <strong>${scheduleOrTimeline}</strong>. I look forward to discussing your project!`
-                : `I've received your project brief for <strong>${lead.service || "your project"}</strong>. I'm currently reviewing the details.`
+                ? `I've received your discovery call request for <strong>${escapeHtml(scheduleOrTimeline)}</strong>. I look forward to discussing your project!`
+                : `I've received your project brief for <strong>${escapeHtml(lead.service || "your project")}</strong>. I'm currently reviewing the details.`
             }
           </p>
 
@@ -159,17 +173,17 @@ export async function sendLeadNotifications(lead: Lead): Promise<{
             <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
               <tr>
                 <td style="padding: 6px 0; color: #71717A; width: 120px;">Service:</td>
-                <td style="padding: 6px 0; color: #FFFFFF; font-weight: 600;">${lead.service || "Custom Software"}</td>
+                <td style="padding: 6px 0; color: #FFFFFF; font-weight: 600;">${escapeHtml(lead.service || "Custom Software")}</td>
               </tr>
               <tr>
                 <td style="padding: 6px 0; color: #71717A;">${isCall ? "Reserved Slot:" : "Timeline:"}</td>
-                <td style="padding: 6px 0; color: #7CF4D4; font-weight: 600;">${scheduleOrTimeline}</td>
+                <td style="padding: 6px 0; color: #7CF4D4; font-weight: 600;">${escapeHtml(scheduleOrTimeline)}</td>
               </tr>
               ${
                 lead.budget
                   ? `<tr>
                 <td style="padding: 6px 0; color: #71717A;">Selected Budget:</td>
-                <td style="padding: 6px 0; color: #FFFFFF;">${lead.budget}</td>
+                <td style="padding: 6px 0; color: #FFFFFF;">${escapeHtml(lead.budget)}</td>
               </tr>`
                   : ""
               }
