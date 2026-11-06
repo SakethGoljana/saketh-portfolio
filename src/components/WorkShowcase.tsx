@@ -64,7 +64,7 @@ const PROJECTS: ProjectData[] = [
     number: "01",
     title: "Dispatch",
     subtitle: "Bulk WhatsApp Automation Engine",
-    category: "MOBILE APPLICATION · ANDROID & IOS",
+    category: "MOBILE APPLICATION · ANDROID",
     categoryShort: "APPS",
     tagline:
       "Turn raw Excel, CSV, and Google Sheets into personalized WhatsApp messages with 1-tap dispatch and zero ban risk.",

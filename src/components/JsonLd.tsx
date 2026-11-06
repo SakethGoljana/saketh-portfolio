@@ -34,10 +34,10 @@ export default function JsonLd() {
     "@type": "SoftwareApplication",
     "@id": "https://sakethgoljana.tech/#dispatch",
     name: "Dispatch — Bulk WhatsApp Automation Engine",
-    operatingSystem: "Android, iOS",
+    operatingSystem: "Android",
     applicationCategory: "BusinessApplication",
     description:
-      "High-performance cross-platform mobile application that turns raw Excel, CSV, and Google Sheets into personalized WhatsApp messages with 1-tap dispatch, dynamic filters, and zero account ban risk.",
+      "High-performance Android mobile application that turns raw Excel, CSV, and Google Sheets into personalized WhatsApp messages with 1-tap dispatch, dynamic filters, and zero account ban risk.",
     author: {
       "@type": "Person",
       name: "Saketh Goljana",
