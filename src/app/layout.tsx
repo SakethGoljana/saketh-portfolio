@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import FeedbackWidget from "@/components/FeedbackWidget";
 import CommandPalette from "@/components/CommandPalette";
+import JsonLd from "@/components/JsonLd";
 
 // Plus Jakarta Sans - Modern, clean, geometric sans designed for premium digital products
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -21,31 +22,74 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Saketh Goljana · Product Developer & Design Engineer",
+  metadataBase: new URL("https://sakethgoljana.tech"),
+  alternates: {
+    canonical: "/",
+  },
+  title: {
+    default: "Saketh Goljana · Lead Architect & Mobile Software Engineer",
+    template: "%s · Saketh Goljana",
+  },
   description:
-    "Full-stack product developer & design engineer building mobile apps, web applications, and intelligent systems with obsessive craft.",
+    "Lead Architect & Mobile Software Engineer building production mobile apps (React Native 0.88, Expo SDK 58), modern web systems (Next.js), and intelligent automation with obsessive craft.",
   keywords: [
-    "Design Engineer",
-    "Full-Stack Developer",
+    "Saketh Goljana",
+    "Lead Architect",
+    "Mobile Software Engineer",
     "React Native",
+    "Expo SDK 58",
     "Next.js",
     "TypeScript",
-    "Tailwind CSS",
     "Dispatch App",
-    "Portfolio",
+    "Bulk WhatsApp Automation",
+    "Design Engineer",
+    "Full-Stack Developer",
+    "Systems Architect",
   ],
-  authors: [{ name: "Saketh Goljana" }],
+  authors: [{ name: "Saketh Goljana", url: "https://sakethgoljana.tech" }],
+  creator: "Saketh Goljana",
+  publisher: "Saketh Goljana",
   openGraph: {
-    title: "Saketh Goljana · Product Developer & Design Engineer",
-    description: "Building production mobile apps, modern web platforms, and intelligent automation systems.",
+    title: "Saketh Goljana · Lead Architect & Mobile Software Engineer",
+    description:
+      "Building high-performance mobile apps, modern web platforms, and intelligent automation systems.",
+    url: "https://sakethgoljana.tech",
+    siteName: "Saketh Goljana Portfolio",
+    locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Saketh Goljana — Lead Architect & Mobile Software Engineer",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Saketh Goljana · Lead Architect & Mobile Software Engineer",
+    description:
+      "Building high-performance mobile apps, modern web platforms, and intelligent automation systems.",
+    images: ["/og-image.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
   icons: {
     icon: [
       { url: "/icon.svg", type: "image/svg+xml" },
     ],
     shortcut: "/icon.svg",
-    apple: "/icon.svg",
+    apple: "/apple-icon.svg",
   },
 };
 
@@ -81,6 +125,7 @@ export default function RootLayout({
     >
       <body className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-sans antialiased selection:bg-[var(--foreground)] selection:text-[var(--background)] flex flex-col transition-colors duration-200">
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+        <JsonLd />
         {children}
         <CommandPalette />
         <FeedbackWidget />
