@@ -287,7 +287,10 @@ export default function CrmStudio() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      loadLeads();
+      const timer = setTimeout(() => {
+        void loadLeads();
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [isAuthenticated]);
 
@@ -298,13 +301,16 @@ export default function CrmStudio() {
 
   useEffect(() => {
     if (selectedLead) {
-      setEditDealValue(selectedLead.dealValue || 0);
-      setEditAmountPaid(selectedLead.amountPaid || 0);
-      setEditCurrency(selectedLead.currency || "USD");
-      setEditPaymentStatus(selectedLead.paymentStatus || "unpaid");
-      setEditInternalNotes(selectedLead.internalNotes || "");
+      const timer = setTimeout(() => {
+        setEditDealValue(selectedLead.dealValue || 0);
+        setEditAmountPaid(selectedLead.amountPaid || 0);
+        setEditCurrency(selectedLead.currency || "USD");
+        setEditPaymentStatus(selectedLead.paymentStatus || "unpaid");
+        setEditInternalNotes(selectedLead.internalNotes || "");
+      }, 0);
+      return () => clearTimeout(timer);
     }
-  }, [selectedLeadId]);
+  }, [selectedLead, selectedLeadId]);
 
   // Handle Login via either PIN or Password
   const handleLogin = async (e?: React.FormEvent) => {

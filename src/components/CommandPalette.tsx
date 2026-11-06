@@ -272,10 +272,12 @@ export default function CommandPalette() {
     );
   }, [commands, query, activeCategory]);
 
-  // Arrow key navigation for desktop
-  useEffect(() => {
+  // Reset selection when query or category changes
+  const [prevFilter, setPrevFilter] = useState({ query, activeCategory });
+  if (prevFilter.query !== query || prevFilter.activeCategory !== activeCategory) {
+    setPrevFilter({ query, activeCategory });
     setSelectedIndex(0);
-  }, [query, activeCategory]);
+  }
 
   const handleInputKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "ArrowDown") {

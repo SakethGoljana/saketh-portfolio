@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import {
   ArrowLeft,
   Compass,
@@ -12,14 +12,16 @@ import {
   Terminal,
 } from "lucide-react";
 
-export default function NotFound() {
-  const [currentPath, setCurrentPath] = useState<string>("");
+function subscribe() {
+  return () => {};
+}
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setCurrentPath(window.location.pathname);
-    }
-  }, []);
+export default function NotFound() {
+  const currentPath = useSyncExternalStore(
+    subscribe,
+    () => window.location.pathname,
+    () => ""
+  );
 
   const triggerPalette = () => {
     if (typeof window !== "undefined") {

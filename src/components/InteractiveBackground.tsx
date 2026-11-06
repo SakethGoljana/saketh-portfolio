@@ -20,19 +20,19 @@ export default function InteractiveBackground() {
   };
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const computed = getComputedStyle(document.documentElement).getPropertyValue("--accent");
-      if (computed) setAccentRgb(hexToRgb(computed));
-    }
-
     const handleThemeOrAccent = () => {
-      const computed = getComputedStyle(document.documentElement).getPropertyValue("--accent");
-      if (computed) setAccentRgb(hexToRgb(computed));
+      if (typeof window !== "undefined") {
+        const computed = getComputedStyle(document.documentElement).getPropertyValue("--accent");
+        if (computed) setAccentRgb(hexToRgb(computed));
+      }
     };
+
+    const animFrame = requestAnimationFrame(handleThemeOrAccent);
 
     window.addEventListener("theme-changed", handleThemeOrAccent);
     window.addEventListener("accent-changed", handleThemeOrAccent);
     return () => {
+      cancelAnimationFrame(animFrame);
       window.removeEventListener("theme-changed", handleThemeOrAccent);
       window.removeEventListener("accent-changed", handleThemeOrAccent);
     };

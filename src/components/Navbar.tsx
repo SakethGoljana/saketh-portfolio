@@ -99,24 +99,26 @@ export default function Navbar() {
   }, [mobileMenuOpen]);
 
   useEffect(() => {
-    try {
-      const savedTheme = localStorage.getItem("portfolio-theme") as "dark" | "light" | null;
-      if (savedTheme) {
-        setTheme(savedTheme);
-        document.documentElement.setAttribute("data-theme", savedTheme);
-        document.documentElement.classList.toggle("dark", savedTheme === "dark");
-        document.documentElement.classList.toggle("light", savedTheme === "light");
-      } else {
-        const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
-        const initial = prefersLight ? "light" : "dark";
-        setTheme(initial);
-        document.documentElement.setAttribute("data-theme", initial);
-        document.documentElement.classList.toggle("dark", initial === "dark");
-        document.documentElement.classList.toggle("light", initial === "light");
+    const frame = requestAnimationFrame(() => {
+      try {
+        const savedTheme = localStorage.getItem("portfolio-theme") as "dark" | "light" | null;
+        if (savedTheme) {
+          setTheme(savedTheme);
+          document.documentElement.setAttribute("data-theme", savedTheme);
+          document.documentElement.classList.toggle("dark", savedTheme === "dark");
+          document.documentElement.classList.toggle("light", savedTheme === "light");
+        } else {
+          const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+          const initial = prefersLight ? "light" : "dark";
+          setTheme(initial);
+          document.documentElement.setAttribute("data-theme", initial);
+          document.documentElement.classList.toggle("dark", initial === "dark");
+          document.documentElement.classList.toggle("light", initial === "light");
+        }
+      } catch {
+        // Fallback
       }
-    } catch {
-      // Fallback
-    }
+    });
 
     const updateTime = () => {
       try {
@@ -144,6 +146,7 @@ export default function Navbar() {
 
     window.addEventListener("theme-changed", handleThemeChange);
     return () => {
+      cancelAnimationFrame(frame);
       clearInterval(interval);
       window.removeEventListener("theme-changed", handleThemeChange);
     };
