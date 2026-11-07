@@ -39,6 +39,11 @@ export default function CookieConsent() {
       window.gtag("consent", "update", {
         analytics_storage: accepted ? "granted" : "denied",
       });
+      if (accepted) {
+        window.gtag("event", "page_view", {
+          page_path: window.location.pathname,
+        });
+      }
     }
 
     setShowBanner(false);
